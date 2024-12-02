@@ -1,13 +1,19 @@
 const express = require("express")
+const cors=require("cors")
 const mongoDb = require("./src/config/server")
-const dotenv = require("dotenv").config()
+ require("dotenv").config()
 const userRoute=require("./src/routes/userRoute")
 const app = express()
 
 
-Port=process.env.PORT
+Port = process.env.PORT
 
-app.use("/api/user",userRoute)
+
+
+app.use(cors())
+app.use("/api/user", userRoute)
+app.use("/api/admin",adminRoute)
+
 
 mongoDb().then(() => {
     app.listen(Port, () => {
