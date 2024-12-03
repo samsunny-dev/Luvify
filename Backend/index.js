@@ -2,7 +2,8 @@ const express = require("express")
 const cors=require("cors")
 const mongoDb = require("./src/config/server")
  require("dotenv").config()
-const userRoute=require("./src/routes/userRoute")
+const userRoute = require("./src/routes/userRoute")
+const adminRoute=require("./src/routes/adminRoute")
 const app = express()
 
 

@@ -1,4 +1,4 @@
-/** @format */
+
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -44,11 +44,11 @@ const adminSignUpController = async (req, res) => {
       { expiresIn: "1d" }
       );
       
-    res.cookie("admin_token", responseToken, { httpOnly: true });
+    res.cookie("adminToken", responseToken, { httpOnly: true });
     res.status(200).json({
       data: createdAdmins,
       success: true,
-      error: false,
+        error: false,
       message: "Admin Created Successfully",
     });
   } catch (error) {
@@ -59,3 +59,6 @@ const adminSignUpController = async (req, res) => {
     });
   }
 };
+
+
+module.exports=adminSignUpController

@@ -4,10 +4,9 @@ const userModel = require("../../model/user");
 
 const userSignUpController = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, phoneOrEmail, password,dateOfBirth ,gender,preferredGenders} = req.body;
 
-    // Basic validation
-    if (!name || !email || !password) {
+    if (!name || !phoneOrEmail || !password||!dateOfBirth||!gender||!preferredGenders) {
       return res.status(400).json({
         success: false,
         error: true,
@@ -15,7 +14,6 @@ const userSignUpController = async (req, res) => {
       });
     }
 
-    // Check if user already exists
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
@@ -25,26 +23,28 @@ const userSignUpController = async (req, res) => {
       });
     }
 
-    // Hash password and create user
+ 
     const hashedPassword = await bcrypt.hash(password, 10);
     const userData = new userModel({
       name,
-      email,
-      password: hashedPassword,
-      role: "USER", // Default role
+        phoneOrEmail,
+        dateOfBirth,
+        gender,
+        preferredGenders,
+      password: hashedPassword, 
+      role: "USER", 
     });
 
     const savedUser = await userData.save();
 
-    // Generate token
     const token = jwt.sign(
       { id: savedUser._id },
       process.env.TOKEN_SECRET_KEY,
       { expiresIn: "1d" }
     );
 
-    // Set cookie and send response
-    res.cookie("user_token", token, { httpOnly: true });
+      res.cookie("user_token", token, { httpOnly: true });
+      res.cookie("userId",savedUser._id)
     res.status(201).json({
       data: savedUser,
       success: true,

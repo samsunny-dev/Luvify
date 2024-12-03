@@ -5,7 +5,7 @@ const userRoute = express()
 
 
 userRoute.post("/signup", userSignUp)
-userRoute.post("/signin", userSignIn)
+// userRoute.post("/signin", userSignIn)
 
 
 

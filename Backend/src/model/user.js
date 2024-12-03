@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose=require("mongoose")
 
 const userSchema = new mongoose.Schema ({
     name: {type : String,},
@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema ({
         type: [String],
         validate: {
             validator: function (v) {
-                return v.length >= 1; // At least one photo required
+                return v.length >= 1; 
             },
             message: "At least one photo is required",
         },
