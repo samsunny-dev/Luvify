@@ -2,34 +2,31 @@ const mongoose=require("mongoose")
 
 const userSchema = new mongoose.Schema ({
     name: {type : String,},
-    phoneOrEmail : {
+    phoneOrEmail: {
         type: String,
         required: true,
         unique: true,
-        validate : {
-            validator : function(value) {
+        validate: {
+            validator: function (value) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const phoneRegex = /^\d{10,15}$/;
-
+                const phoneRegex = /^\+?[1-9]\d{1,14}$/;
                 return emailRegex.test(value) || phoneRegex.test(value);
             },
-
             message: "Must be a valid email address or phone number",
         },
     },
+    
 
     password: {
         type: String,
         required: true,
         minlength: 8,
         validate: {
-            validator: function (value) {
-                const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                return passwordRegex.test(value);
-            },
+            validator: (value) => /[A-Za-z]/.test(value) && /\d/.test(value) && /[@$!%*?&]/.test(value),
             message: "Password must contain at least one letter, one number, and one special character",
         },
-    },
+    }
+    ,
 
     dateOfBirth: {
         type: Date,
@@ -37,7 +34,7 @@ const userSchema = new mongoose.Schema ({
         validate: {
             validator: function (v) {
                 const age = new Date().getFullYear() - v.getFullYear();
-                return age >= 18; // Must be 18 or older
+                return age >= 18; 
             },
             message: "You must be at least 18 years old",
         },
@@ -57,25 +54,24 @@ const userSchema = new mongoose.Schema ({
 
     photos: {
         type: [String],
-        validate: {
-            validator: function (v) {
-                return v.length >= 1; 
-            },
-            message: "At least one photo is required",
-        },
+       default:[]
     },
-
     location: {
         type: {
             type: String,
             enum: ['Point'],
-            required: true
         },
         coordinates: {
             type: [Number],
-            required: true
-        }
+            // validate: {
+            //     validator: function (value) {
+            //         return value.length === 2;
+            //     },
+            //     message: "Coordinates must have exactly two numbers",
+            // },
+        },
     },
+    
 
     bio: {
         type: String,
@@ -83,18 +79,17 @@ const userSchema = new mongoose.Schema ({
     },
     jobTitle: {
         type: String,
-        required: false,
+        default: null 
+
     },
 
     company: {
         type: String,
-        required: false,
-    },
+        default: null     },
 
     education: {
         type: String,
-        required: false,
-    },
+        default: null     },
 
     interestsOrHobbies: {
         type: [String],
@@ -107,10 +102,15 @@ const userSchema = new mongoose.Schema ({
     spotifyTopTracks: {
         type: [String],
     },
-
+    isVerified: {
+        type: Boolean,
+    default:false
+},
     verificationCode: {
         type: String,
-    }
+    }, otpExpires: {
+        type: Date,
+    },
 }, {timestamps: true});
 
 const User = mongoose.model("User", userSchema);

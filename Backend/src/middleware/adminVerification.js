@@ -3,9 +3,9 @@ const jwt = require('jsonwebtoken');
 const secretKey = process.env.TOKEN_SECRET_KEY; 
 
 const adminVerify = (req, res, next) => {
-  
+
     try {
-        const admin_Token = req.cookies.adminToken
+        const admin_Token = req.cookies.adminToken;
 
         if (!admin_Token) {
            return res.status(403).json({

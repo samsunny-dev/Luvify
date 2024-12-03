@@ -1,40 +1,54 @@
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcrypt")
-const adminModel = require("../../model/admin")
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const adminModel = require("../../model/admin");
 
-const adminSignInController = async(req,res) => {
+const adminSignInController = async (req, res) => {
     try {
-        const { email, password } = req.body
-        const adminDetails =await adminModel.findOne({ email })
+        const { email, password } = req.body;
+
+        console.log("Email:", email);
+        console.log("Password:", password);
+
+        // Check if admin exists
+        const adminDetails = await adminModel.findOne({ email });
+        if (!adminDetails) {
+            return res.status(401).json({ message: 'Admin not found.' });
+        }
+
+        // Validate password
         const isPasswordValid = await bcrypt.compare(password, adminDetails.password);
-
-        if (email != adminDetails.email) {
-            return res.status(401).json({ message: 'Admin not found.. ' });
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
         }
 
-        if (isPasswordValid && adminDetails) {
-        
-            const tokenData = {
-                _id: adminDetails._id,
-                email: adminDetails.email,
-            };
-            const token = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, {
-                expiresIn: "7d",
-            });
-  
-            res.cookies("adminToken", token, { httpOnly: true, secure: true }).json({
-                success: "Login Successful",
+        // Generate token
+        const tokenData = {
+            _id: adminDetails._id,
+            email: adminDetails.email,
+        };
+        const token = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, {
+            expiresIn: "7d",
+         });
+
+        res.cookie("adminToken", token, { httpOnly: true })
+            .status(200)
+            .json({
+                success: true,
+                message: "Login Successful",
                 token: token,
-                redirectUrl: "/adminDashboard"
+                adminDetails: {
+                    _id: adminDetails._id,
+                    name: adminDetails.name,
+                    email: adminDetails.email,
+                    role: adminDetails.role,
+                },
+                redirectUrl: "/adminDashboard",
             });
-        }
-
-       
-
-    } catch (error) {
+        
+        } catch (error) {
         console.error(`Error: ${error.message}`);
-        res.status(500).json({ message: 'Internal server error' }); 
+        res.status(500).json({ message: 'Internal server error', error: true });
     }
-}
+};
 
-module.exports=adminSignInController
+module.exports = adminSignInController;
