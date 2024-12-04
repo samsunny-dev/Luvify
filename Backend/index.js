@@ -16,6 +16,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors())
 
+
+app.use(cors())
 app.use("/api/user", userRoute)
 app.use("/api/admin",adminRoute)
 
@@ -23,5 +25,6 @@ app.use("/api/admin",adminRoute)
 mongoDb().then(() => {
     app.listen(Port, () => {
         console.log(`Server running at ${Port}`)
+        console.log("Server running")
     })  
 })

@@ -9,13 +9,11 @@ const adminSignInController = async (req, res) => {
         console.log("Email:", email);
         console.log("Password:", password);
 
-        // Check if admin exists
         const adminDetails = await adminModel.findOne({ email });
         if (!adminDetails) {
             return res.status(401).json({ message: 'Admin not found.' });
         }
 
-        // Validate password
         const isPasswordValid = await bcrypt.compare(password, adminDetails.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid credentials.' });
