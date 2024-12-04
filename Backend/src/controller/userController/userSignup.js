@@ -33,7 +33,7 @@ const userSignUpController = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); 
         const otpExpires = new Date(Date.now() + 10 * 60 * 1000)
 
         const userData = new userModel({

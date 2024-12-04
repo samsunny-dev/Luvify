@@ -27,7 +27,11 @@ const userSchema = new mongoose.Schema ({
         },
     }
     ,
-
+    referencedField: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ReferencedModel'
+    }
+,
     dateOfBirth: {
         type: Date,
         required: true,
