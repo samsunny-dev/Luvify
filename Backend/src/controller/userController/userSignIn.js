@@ -16,8 +16,7 @@ const userSignInController = async (req, res) => {
       });
     }
 
-    // Check if the email belongs to an admin
-    const admin = await adminModel.findOne({ email });
+     const admin = await adminModel.findOne({ email });
     if (admin) {
       const isAdminPasswordValid = await bcrypt.compare(password, admin.password);
       if (!isAdminPasswordValid) {

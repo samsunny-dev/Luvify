@@ -1,8 +1,8 @@
 const userModel = require("../../model/user")
 
 const deleteUser = async (req, res) => {
-  const userId = req.cookies.userId
-    try {
+  const { userId } = req.query
+  try {
       const userDetails = await userModel.findByIdAndDelete({ userId })
       
       if (!userDetails) {

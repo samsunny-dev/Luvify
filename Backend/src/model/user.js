@@ -67,12 +67,12 @@ const userSchema = new mongoose.Schema ({
         },
         coordinates: {
             type: [Number],
-            // validate: {
-            //     validator: function (value) {
-            //         return value.length === 2;
-            //     },
-            //     message: "Coordinates must have exactly two numbers",
-            // },
+            validate: {
+                validator: function (value) {
+                    return value.length === 2;
+                },
+                message: "Coordinates must have exactly two numbers",
+            },
         },
     },
     

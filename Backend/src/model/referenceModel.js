@@ -5,7 +5,9 @@ const referencedSchema = new mongoose.Schema({
     phoneOrEmail: String,
     gender: String,
     preferredGenders: [String],
+
     photos: [String]
+    
 });
 
 const ReferencedModel = mongoose.model('ReferencedModel', referencedSchema);
