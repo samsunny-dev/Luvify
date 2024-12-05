@@ -1,39 +1,4 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');  
-
-exports.createProfile = async (req, res) => {
-  try {
-    const { name, bio, jobTitle, dateOfBirth, gender, preferredGenders, photos } = req.body;
-    
-    const user = await User.findOne({ phoneOrEmail: req.user.phoneOrEmail }); 
-    
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    
-    if (user.profile) {
-      return res.status(400).json({ message: "Profile already exists" });
-    }
-    
-    const profileData = {
-      name,
-      bio,
-      jobTitle,
-      dateOfBirth,
-      gender,
-      preferredGenders,
-      photos: photos || []
-    };
-    
-    user.profile = profileData;
-    await user.save();
-    
-    return res.status(201).json({ message: "Profile created successfully", profile: profileData });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
-  }
-};
 
 
 exports.getProfile = async (req, res) => {

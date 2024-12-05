@@ -28,7 +28,7 @@ const adminSignInController = async (req, res) => {
             expiresIn: "7d",
          });
 
-        res.cookie("adminToken", token, { httpOnly: true })
+        res.cookie("adminToken", token, { httpOnly: true , secure:process.env.NODE_ENV==="production"})
             .status(200)
             .json({
                 success: true,

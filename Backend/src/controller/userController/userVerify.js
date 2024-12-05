@@ -25,7 +25,7 @@ const userVerifyController = async (req, res) => {
           );
       
 
-        res.cookie("user_token", userToken, { httpOnly: true });
+        res.cookie("user_token", userToken, { httpOnly: true ,secure:NODE_ENV==="production" });
         return res.status(200).json({
           data: { id: user._id, name: user.name, email: user.email, role: user.role },
           success: true,

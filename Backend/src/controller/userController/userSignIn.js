@@ -43,7 +43,6 @@ const userSignInController = async (req, res) => {
       });
     }
 
-    // Check if the email belongs to a user
     const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(401).json({
@@ -68,8 +67,8 @@ const userSignInController = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.cookie("user_token", userToken, { httpOnly: true });
-    return res.status(200).json({
+      res.cookie("user_token", userToken, { httpOnly: true , secure:NODE_ENV==="production"});
+      return res.status(200).json({
       data: { id: user._id, name: user.name, email: user.email, role: user.role },
       success: true,
       error: false,
