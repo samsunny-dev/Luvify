@@ -112,9 +112,21 @@ const userSchema = new mongoose.Schema ({
 },
     verificationCode: {
         type: String,
+
     }, otpExpires: {
         type: Date,
     },
+
+    profileImage: {
+        type: String,
+        default: null,
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+
 }, {timestamps: true});
 
 const User = mongoose.model("User", userSchema);
