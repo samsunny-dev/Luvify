@@ -1,15 +1,11 @@
 const bcrypt = require("bcrypt");
-const twilio = require("twilio");
+const firebaseAdmin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 const userModel = require("../../model/user");
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
-
-const client = new twilio(accountSid, authToken);
-
-
+firebaseAdmin.initializeApp({
+    credential: firebaseAdmin.credential.cert(require("../../path/to/serviceAccountKey.json")),
+  });
 
 const userSignUpController = async (req, res) => {
   try {
@@ -87,12 +83,8 @@ const userSignUpController = async (req, res) => {
       }
     } else if (/^\+\d{1,3}\d{10,15}$/.test(phoneOrEmail)) {
       try {
-        await client.messages.create({
-          body: `Your OTP is: ${verificationCode}`,
-          from: twilioPhoneNumber,
-          to: phoneOrEmail,
-        });
-
+        
+        const verificationResult = await firebaseAdmin.auth().verifyIdToken(verificationCode);        
         return res.status(201).json({
           success: true,
           error: false,

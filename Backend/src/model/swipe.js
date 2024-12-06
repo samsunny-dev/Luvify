@@ -1,4 +1,3 @@
-// models/Swipe.js
 const mongoose = require('mongoose');
 
 const swipeSchema = new mongoose.Schema({

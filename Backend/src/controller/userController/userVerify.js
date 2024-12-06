@@ -30,7 +30,7 @@ const userVerifyController = async (req, res) => {
           data: { id: user._id, name: user.name, email: user.email, role: user.role },
           success: true,
           error: false,
-          message: "Email verified successfully!",
+          message: "OTP verified successfully!",
         });
     } catch (error) {
         res.status(500).json({ message: error.message || error });
