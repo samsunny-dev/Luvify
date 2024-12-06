@@ -1,4 +1,4 @@
-const Swipe = require("../models/Swipe"); 
+const Swipe = require("../../model/swipe"); 
 const { validateUsersAndPreferences } = require("../../utils/validateUsersAndPreferences"); 
 
 const swipeRight = async (req, res) => {

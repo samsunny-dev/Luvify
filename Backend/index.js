@@ -25,6 +25,5 @@ app.use("/api/admin",adminRoute)
 mongoDb().then(() => {
     app.listen(Port, () => {
         console.log(`Server running at ${Port}`)
-        console.log("Server running")
     })  
 })
