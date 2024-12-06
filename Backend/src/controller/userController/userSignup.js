@@ -1,11 +1,19 @@
 const bcrypt = require("bcrypt");
-const firebaseAdmin = require("firebase-admin");
+const twilio = require("twilio");
 const nodemailer = require("nodemailer");
 const userModel = require("../../model/user");
 
-firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.cert(require("../../path/to/serviceAccountKey.json")),
-  });
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+const client = new twilio(accountSid, authToken);
+
+// Password strength validation
+const isValidPassword = (password) => {
+  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
+  return regex.test(password);
+};
 
 const userSignUpController = async (req, res) => {
   try {
@@ -19,7 +27,14 @@ const userSignUpController = async (req, res) => {
       });
     }
 
-
+    // Password validation
+    if (!isValidPassword(password)) {
+      return res.status(400).json({
+        success: false,
+        error: true,
+        message: "Password must be 8-20 characters long and contain at least one letter, one number, and one special character.",
+      });
+    }
 
     const existingUser = await userModel.findOne({ phoneOrEmail });
     if (existingUser) {
@@ -83,8 +98,12 @@ const userSignUpController = async (req, res) => {
       }
     } else if (/^\+\d{1,3}\d{10,15}$/.test(phoneOrEmail)) {
       try {
-        
-        const verificationResult = await firebaseAdmin.auth().verifyIdToken(verificationCode);        
+        await client.messages.create({
+          body: `Your OTP is: ${verificationCode}`,
+          from: "918289929846",
+          to: phoneOrEmail,
+        });
+
         return res.status(201).json({
           success: true,
           error: false,

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../../middleware/multer');
-const s3 = require('../../config/awsConfig');
+const s3 = require('../../config/aws');
 
 const uploadImages = async (req, res) => {
     try {
