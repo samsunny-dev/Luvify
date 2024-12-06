@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const twilio = require("twilio");
 const nodemailer = require("nodemailer");
@@ -10,6 +9,12 @@ const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
 const client = new twilio(accountSid, authToken);
 
+// Password strength validation
+const isValidPassword = (password) => {
+  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
+  return regex.test(password);
+};
+
 const userSignUpController = async (req, res) => {
   try {
     const { name, phoneOrEmail, password, dateOfBirth, gender, preferredGenders } = req.body;
@@ -19,6 +24,15 @@ const userSignUpController = async (req, res) => {
         success: false,
         error: true,
         message: "Please provide all required fields.",
+      });
+    }
+
+    // Password validation
+    if (!isValidPassword(password)) {
+      return res.status(400).json({
+        success: false,
+        error: true,
+        message: "Password must be 8-20 characters long and contain at least one letter, one number, and one special character.",
       });
     }
 
@@ -75,6 +89,7 @@ const userSignUpController = async (req, res) => {
           message: "User created successfully. Please check your email for the verification code.",
         });
       } catch (error) {
+        console.error("Email Error: ", error);
         return res.status(500).json({
           success: false,
           error: true,
@@ -82,17 +97,26 @@ const userSignUpController = async (req, res) => {
         });
       }
     } else if (/^\+\d{1,3}\d{10,15}$/.test(phoneOrEmail)) {
-      await client.messages.create({
-        body: `Your OTP is: ${verificationCode}`,
-        from: twilioPhoneNumber,
-        to: phoneOrEmail,
-      });
+      try {
+        await client.messages.create({
+          body: `Your OTP is: ${verificationCode}`,
+          from: "918289929846",
+          to: phoneOrEmail,
+        });
 
-      return res.status(201).json({
-        success: true,
-        error: false,
-        message: "User created successfully. Please check your phone for the OTP.",
-      });
+        return res.status(201).json({
+          success: true,
+          error: false,
+          message: "User created successfully. Please check your phone for the OTP.",
+        });
+      } catch (error) {
+        console.error("Twilio Error: ", error);
+        return res.status(500).json({
+          success: false,
+          error: true,
+          message: "Error sending OTP via SMS.",
+        });
+      }
     } else {
       return res.status(400).json({
         success: false,
@@ -101,6 +125,7 @@ const userSignUpController = async (req, res) => {
       });
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       message: error.message || "Internal Server Error",
       error: true,
@@ -109,5 +134,4 @@ const userSignUpController = async (req, res) => {
   }
 };
 
-
-module.exports=userSignUpController
+module.exports = userSignUpController;

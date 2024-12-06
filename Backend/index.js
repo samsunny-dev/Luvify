@@ -51,6 +51,5 @@ const Port = process.env.PORT || 3000;
 mongoDb().then(() => {
     app.listen(Port, () => {
         console.log(`Server running at ${Port}`)
-        console.log("Server running")
     })  
 })

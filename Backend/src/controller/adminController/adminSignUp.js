@@ -44,7 +44,7 @@ const adminSignUpController = async (req, res) => {
       { expiresIn: "1d" }
       );
       
-    res.cookie("adminToken", responseToken, { httpOnly: true });
+    res.cookie("adminToken", responseToken, { httpOnly: true,secure:NODE_ENV==="production" });
     res.status(200).json({
       data: createdAdmins,
       success: true,

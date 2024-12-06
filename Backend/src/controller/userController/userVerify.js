@@ -1,19 +1,23 @@
 const userModel = require("../../model/user");
+const jwt=require("jsonwebtoken")
 
 const userVerifyController = async (req, res) => {
     const { email, verificationCode } = req.body;
 
     try {
-        const user = await userModel.findOne({ email });
+        console.log('Request Email:', email);
 
+        const user = await userModel.findOne({ phoneOrEmail: email });
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
 
-        if (user.verificationCode !== verificationCode) {
+        
+        if (String(user.verificationCode) !== String(verificationCode)) {
             return res.status(400).json({ message: "Invalid verification code." });
         }
-
+        
+        
         user.isVerified = true; 
         user.verificationCode = undefined; 
         await user.save();
@@ -25,7 +29,7 @@ const userVerifyController = async (req, res) => {
           );
       
 
-        res.cookie("user_token", userToken, { httpOnly: true });
+        res.cookie("user_token", userToken, { httpOnly: true ,secure:process.env.NODE_ENV==="production" });
         return res.status(200).json({
           data: { id: user._id, name: user.name, email: user.email, role: user.role },
           success: true,
