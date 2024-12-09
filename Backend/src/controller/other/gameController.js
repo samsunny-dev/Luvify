@@ -1,4 +1,4 @@
-const GameSession = require("../models/GameSession");
+const GameSession = require("../../model/gameSchema");
 
 const startGame = async (req, res) => {
     const { creatorId, statements } = req.body;
@@ -32,10 +32,9 @@ const submitGuess = async (req, res) => {
         const game = await GameSession.findById(gameId);
         if (!game) return res.status(404).json({ message: "Game not found" });
 
-        // Check if guess is correct
         const isCorrect = game.statements[guessedIndex]?.isLie || false;
 
-        // Record the guess
+        
         game.guesses.push({ userId, guessedIndex, isCorrect });
         await game.save();
 
@@ -61,3 +60,6 @@ const getGameResults = async (req, res) => {
         res.status(500).json({ message: "Error fetching game results", error: error.message });
     }
 };
+
+
+module.exports={startGame,submitGuess,getGameResults}

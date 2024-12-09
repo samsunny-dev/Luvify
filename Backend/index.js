@@ -11,10 +11,6 @@ const cookieParser = require("cookie-parser");
 
 const app = express()
 
-
-Port = process.env.PORT
-
-
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors())

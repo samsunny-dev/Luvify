@@ -1,10 +1,6 @@
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-<<<<<<< HEAD
-const s3 = require('../config/awsConfig');
-=======
 const s3 = require('../config/aws');
->>>>>>> aa4ec76b7e4eae2189ea675b610612cf878185c4
 
 const upload = multer({
     storage: multerS3({

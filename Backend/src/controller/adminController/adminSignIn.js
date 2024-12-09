@@ -6,8 +6,7 @@ const adminSignInController = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        console.log("Email:", email);
-        console.log("Password:", password);
+       
 
         const adminDetails = await adminModel.findOne({ email });
         if (!adminDetails) {

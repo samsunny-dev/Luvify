@@ -15,8 +15,12 @@ const userSignInController = async (req, res) => {
       });
     }
 
-     const admin = await adminModel.findOne({ phoneOrEmail });
-    if (admin) {
+
+
+    const admin = await adminModel.findOne({
+      email: { $regex: `^${phoneOrEmail}$`, $options: "i" }, 
+    });
+        if (admin) {
       const isAdminPasswordValid = await bcrypt.compare(password, admin.password);
       if (!isAdminPasswordValid) {
         return res.status(401).json({
@@ -26,6 +30,7 @@ const userSignInController = async (req, res) => {
         });
       }
 
+  
       const adminToken = jwt.sign(
         { id: admin._id, role: admin.role },
         process.env.TOKEN_SECRET_KEY,
@@ -43,6 +48,7 @@ const userSignInController = async (req, res) => {
     }
 
     const user = await userModel.findOne({ phoneOrEmail });
+    console.log('User Query Result:', user);
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -71,7 +77,7 @@ const userSignInController = async (req, res) => {
       secure: process.env.NODE_ENV === "production"
     });
       return res.status(200).json({
-      data: { id: user._id, name: user.name, email: user.phoneOrEmail, role: user.role },
+      data: { id: user._id, name: user.name, phoneOrEmail: user.phoneOrEmail, role: user.role },
       success: true,
       error: false,
       message: "User logged in successfully",

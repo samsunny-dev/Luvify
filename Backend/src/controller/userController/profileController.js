@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const User = require('../../model/user');
 
 
 exports.getProfile = async (req, res) => {

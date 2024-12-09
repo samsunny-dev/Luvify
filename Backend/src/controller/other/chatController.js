@@ -1,16 +1,18 @@
-const ChatMessage = require('../models/ChatMessage');
+const ChatMessage = require('../../model/chatMessage');
 
 exports.getChatHistory = async (req, res) => {
   try {
     const { receiverId } = req.params;
-    const userId = req.user.id; // From the auth middleware
+    const userId = req.user.id; 
+    console.log("user in the request : ",req.user)
+    console.log("user Id :", userId)
 
     const messages = await ChatMessage.find({
       $or: [
         { sender: userId, receiver: receiverId },
         { sender: receiverId, receiver: userId },
       ],
-    }).sort({ createdAt: 1 }); // Sort by oldest to newest
+    }).sort({ createdAt: 1 }); 
 
     return res.status(200).json(messages);
   } catch (err) {

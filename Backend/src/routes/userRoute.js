@@ -1,5 +1,5 @@
 const express = require("express")
-const userSignIn = require("../controller/userController/userSignIn")
+const userSignIn = require("../controller/userController/userSignIn.js")
 const userSignUp=require("../controller/userController/userSignup")
 const userAuthenticate=require("../middleware/userVerification")
 const swipeFunction = require("../components/user/swipeFunctions")
@@ -7,6 +7,9 @@ const userLogout=require("../controller/userController/userLogout")
 const { uploadImages,deleteS3Object,replaceImage } = require("../components/user/imageFunctions")
 const upload = require("../middleware/multer")
 const userVerifyController = require("../controller/userController/userVerify")
+const { getChatHistory } = require("../controller/other/chatController")
+const { getProfile, updateProfile} = require("../controller/userController/profileController.js");
+
 
 const userRoute = express()
 
@@ -20,7 +23,13 @@ userRoute.post("/swipeLeft",userAuthenticate, swipeFunction.swipeLeft);
 userRoute.post("/swipeRight",userAuthenticate, swipeFunction.swipeRight)
 userRoute.post("/uploadImage",userAuthenticate,upload.array('images', 5),uploadImages)
 userRoute.put('/replace/:key',userAuthenticate, upload.single('images',5), replaceImage);
-userRoute.delete('/remove/:key',userAuthenticate, deleteS3Object); 
+userRoute.delete('/remove/:key', userAuthenticate, deleteS3Object); 
+
+// userRoute.delete("/clearchat",userAuthenticate,deletechat)
+userRoute.get("/:receiverId", userAuthenticate, getChatHistory);
+
+userRoute.get("/profile", userAuthenticate, getProfile);
+userRoute.put("/profile", userAuthenticate, updateProfile);
 
 
 module.exports=userRoute
