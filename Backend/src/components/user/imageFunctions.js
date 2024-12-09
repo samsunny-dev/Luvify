@@ -1,6 +1,7 @@
 const express = require('express');
-const s3Client = require('../../config/aws');
-const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const router = express.Router();
+const upload = require('../../middleware/multer');
+const s3 = require('../../config/aws');
 
 const uploadImages = async (req, res) => {
     try {
