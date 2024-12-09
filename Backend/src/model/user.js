@@ -86,6 +86,9 @@ const userSchema = new mongoose.Schema ({
         default: null 
 
     },
+    status: { type: String, default: "active" },
+    
+  deactivationExpiresAt: { type: Date },
 
     company: {
         type: String,

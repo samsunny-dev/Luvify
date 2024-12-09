@@ -5,9 +5,9 @@ const adminModel = require("../../model/admin");
 
 const userSignInController = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { phoneOrEmail, password } = req.body;
 
-    if (!email || !password) {
+    if (!phoneOrEmail || !password) {
       return res.status(400).json({
         success: false,
         error: true,
@@ -15,7 +15,7 @@ const userSignInController = async (req, res) => {
       });
     }
 
-     const admin = await adminModel.findOne({ email });
+     const admin = await adminModel.findOne({ phoneOrEmail });
     if (admin) {
       const isAdminPasswordValid = await bcrypt.compare(password, admin.password);
       if (!isAdminPasswordValid) {
@@ -32,22 +32,22 @@ const userSignInController = async (req, res) => {
         { expiresIn: "7d" }
       );
 
-      res.cookie("adminToken", adminToken, { httpOnly: true });
+      res.cookie("adminToken", adminToken, { httpOnly: true , secure: process.env.NODE_ENV === "production"});
       return res.status(200).json({
         data: { id: admin._id, name: admin.name, email: admin.email, role: admin.role },
         success: true,
         error: false,
         message: "Admin logged in successfully",
-        redirectedUrl: "/admin-dashboard",
+        redirectedUrl: "/admin",
       });
     }
 
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ phoneOrEmail });
     if (!user) {
       return res.status(401).json({
         success: false,
         error: true,
-        message: "Invalid email or password",
+        message: "Invalid email or number",
       });
     }
 
@@ -56,7 +56,7 @@ const userSignInController = async (req, res) => {
       return res.status(401).json({
         success: false,
         error: true,
-        message: "Invalid email or password",
+        message: "Invalid  password",
       });
     }
 
@@ -66,9 +66,12 @@ const userSignInController = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-      res.cookie("user_token", userToken, { httpOnly: true , secure:NODE_ENV==="production"});
+    res.cookie("user_token", userToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production"
+    });
       return res.status(200).json({
-      data: { id: user._id, name: user.name, email: user.email, role: user.role },
+      data: { id: user._id, name: user.name, email: user.phoneOrEmail, role: user.role },
       success: true,
       error: false,
       message: "User logged in successfully",

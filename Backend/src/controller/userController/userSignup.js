@@ -75,12 +75,81 @@ const userSignUpController = async (req, res) => {
       });
 
       const mailOptions = {
-        from: process.env.EMAIL_OF_LIBIN,
+        from:`"LoveConnect Support" <noreply@luvify.com>`,
         to: phoneOrEmail,
-        subject: "Email Verification",
-        text: `Your verification code is: ${verificationCode}`,
+        subject: "Verify Your Account - Luvify",
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>OTP Verification</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                margin: 0;
+                padding: 0;
+              }
+              .email-container {
+                background-color: #ffffff;
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-align: center;
+              }
+              .email-header {
+                background-color: #ff4081;
+                color: #ffffff;
+                padding: 20px;
+                border-radius: 8px 8px 0 0;
+              }
+              .email-header h1 {
+                margin: 0;
+                font-size: 24px;
+              }
+              .email-content {
+                padding: 20px;
+                font-size: 16px;
+                color: #333333;
+              }
+              .otp {
+                font-size: 24px;
+                font-weight: bold;
+                color: #ff4081;
+                margin: 20px 0;
+              }
+              .email-footer {
+                font-size: 14px;
+                color: #777777;
+                margin-top: 20px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <div class="email-header">
+                <h1>Welcome to Luvify ❤️</h1>
+              </div>
+              <div class="email-content">
+                <p>Hi there!</p>
+                <p>We're excited to have you on board. To get started, please verify your account by entering the OTP below:</p>
+                <div class="otp"><h4>${verificationCode}</h4></div>
+                <p>This OTP is valid for the next <strong>10 minutes</strong>. Please don't share it with anyone.</p>
+                <p>Need help? Contact our support team at any time.</p>
+              </div>
+              <div class="email-footer">
+                <p>Thank you for choosing LoveConnect. Let's make meaningful connections!</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `,
       };
-
+      
       try {
         await transporter.sendMail(mailOptions);
         return res.status(201).json({
@@ -100,7 +169,7 @@ const userSignUpController = async (req, res) => {
       try {
         await client.messages.create({
           body: `Your OTP is: ${verificationCode}`,
-          from: "918289929846",
+          from: twilioPhoneNumber,
           to: phoneOrEmail,
         });
 

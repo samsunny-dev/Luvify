@@ -5,7 +5,7 @@ const s3 = require('../config/aws');
 const upload = multer({
     storage: multerS3({
         s3: s3,
-        bucket: process.env.S3_BUCKET_NAME || 'default-bucket-name',
+        bucket: process.env.AWS_S3_BUCKET_NAME,
         acl: 'public-read',
         metadata: (req, file, cb) => {
             cb(null, { fieldName: file.fieldname });

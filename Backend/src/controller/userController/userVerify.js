@@ -2,12 +2,12 @@ const userModel = require("../../model/user");
 const jwt=require("jsonwebtoken")
 
 const userVerifyController = async (req, res) => {
-    const { email, verificationCode } = req.body;
+    const { phoneOrEmail, verificationCode } = req.body;
 
     try {
-        console.log('Request Email:', email);
+        console.log('Request Email:', phoneOrEmail);
 
-        const user = await userModel.findOne({ phoneOrEmail: email });
+        const user = await userModel.findOne({ phoneOrEmail: phoneOrEmail});
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -31,7 +31,7 @@ const userVerifyController = async (req, res) => {
 
         res.cookie("user_token", userToken, { httpOnly: true ,secure:process.env.NODE_ENV==="production" });
         return res.status(200).json({
-          data: { id: user._id, name: user.name, email: user.email, role: user.role },
+          data: { id: user._id, name: user.name, phoneOrE: user.phoneOrEmail, role: user.role },
           success: true,
           error: false,
           message: "Email verified successfully!",
