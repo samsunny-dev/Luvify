@@ -6,6 +6,7 @@ const mongoDb = require("./src/config/server")
  require("dotenv").config()
 const userRoute = require("./src/routes/userRoute")
 const adminRoute = require("./src/routes/adminRoute")
+const gameRoute = require("./src/routes/gameRoute")
 const cookieParser = require("cookie-parser");
 
 const app = express()
@@ -22,6 +23,7 @@ app.use(cors())
 app.use(cors())
 app.use("/api/user", userRoute)
 app.use("/api/admin",adminRoute)
+app.use("/api/game", gameRoute);
 
 const server = http.createServer(app);
 

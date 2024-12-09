@@ -1,5 +1,3 @@
-const chatMessage = require("../../model/chatMessage");
-
 const ChatMessage = require('../models/ChatMessage');
 
 exports.getChatHistory = async (req, res) => {
