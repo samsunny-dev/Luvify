@@ -20,6 +20,7 @@ app.use(cors())
 app.use("/api/user", userRoute)
 app.use("/api/admin",adminRoute)
 app.use("/api/game", gameRoute);
+app.use("/api/photo", userRoute);
 
 const server = http.createServer(app);
 

@@ -111,13 +111,18 @@ const userSchema = new mongoose.Schema ({
     },
     isVerified: {
         type: Boolean,
-    default:false
+        default:false
 },
+    verificationDetails: {
+        faceMatchScore: Number,
+        fingerprintId: String,
+    },
     verificationCode: {
         type: String,
     }, otpExpires: {
         type: Date,
     },
+
 }, {timestamps: true});
 
 const User = mongoose.model("User", userSchema);

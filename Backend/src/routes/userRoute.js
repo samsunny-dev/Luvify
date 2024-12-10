@@ -9,6 +9,8 @@ const {upload} = require("../middleware/multer.js")
 const userVerifyController = require("../controller/userController/userVerify")
 const { getChatHistory } = require("../controller/other/chatController")
 const { getProfile, updateProfile} = require("../controller/userController/profileController.js");
+const { detectFaceController } = require("../controller/other/photoController");
+const upload = require("../middlewares/uploadMiddleware");
 
 
 const userRoute = express()
@@ -18,7 +20,7 @@ userRoute.post("/signup", userSignUp)
 userRoute.post("/verify", userVerifyController)
 userRoute.post("/signin", userSignIn)
 userRoute.post("/logout", userAuthenticate, userLogout)
-
+userRoute.post("/uploadPhoto", upload.single("photo"), detectFaceController);
 userRoute.post("/swipeLeft",userAuthenticate, swipeFunction.swipeLeft);
 userRoute.post("/swipeRight",userAuthenticate, swipeFunction.swipeRight)
 userRoute.post("/uploadImage",userAuthenticate,upload.array('images', 5),uploadImages)
