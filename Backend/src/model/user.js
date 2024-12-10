@@ -100,6 +100,8 @@ const userSchema = new mongoose.Schema ({
 
     interestsOrHobbies: {
         type: [String],
+        enum: ["music", "sports", "technology", "art", "literature", "gaming", "travel", "fitness"],
+
     },
     
     instagramHandle: {
@@ -122,18 +124,9 @@ const userSchema = new mongoose.Schema ({
     }, otpExpires: {
         type: Date,
     },
-    communityId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Community", required: true },
-    userId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User", required: true },
-    content: { 
-        type: String, 
-        required: true },
-    message: { 
-        type: String, 
-        required: true }
+    
+   
+   
 
 }, {timestamps: true});
 
