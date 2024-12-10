@@ -4,8 +4,8 @@ const userSignUp=require("../controller/userController/userSignup")
 const userAuthenticate=require("../middleware/userVerification")
 const swipeFunction = require("../components/user/swipeFunctions")
 const userLogout=require("../controller/userController/userLogout")
-const { uploadImages,deleteS3Object,replaceImage } = require("../components/user/imageFunctions")
-const upload = require("../middleware/multer")
+const { uploadImages,deleteS3Object,replaceImage,getAllImages } = require("../components/user/imageFunctions")
+const {upload} = require("../middleware/multer.js")
 const userVerifyController = require("../controller/userController/userVerify")
 const { getChatHistory } = require("../controller/other/chatController")
 const { getProfile, updateProfile} = require("../controller/userController/profileController.js");
@@ -22,7 +22,8 @@ userRoute.post("/logout", userAuthenticate, userLogout)
 userRoute.post("/swipeLeft",userAuthenticate, swipeFunction.swipeLeft);
 userRoute.post("/swipeRight",userAuthenticate, swipeFunction.swipeRight)
 userRoute.post("/uploadImage",userAuthenticate,upload.array('images', 5),uploadImages)
-userRoute.put('/replace/:key',userAuthenticate, upload.single('images',5), replaceImage);
+userRoute.put('/replace/:key', userAuthenticate, upload.array('images', 5), replaceImage);
+userRoute.get("/getImages", userAuthenticate, getAllImages)
 userRoute.delete('/remove/:key', userAuthenticate, deleteS3Object); 
 
 // userRoute.delete("/clearchat",userAuthenticate,deletechat)

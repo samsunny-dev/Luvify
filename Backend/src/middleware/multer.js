@@ -1,20 +1,13 @@
 const multer = require('multer');
-const multerS3 = require('multer-s3');
-const s3 = require('../config/aws');
+const { Upload } = require('@aws-sdk/lib-storage');
+const s3Client = require('../config/aws'); 
+
+const storage = multer.memoryStorage();
 
 const upload = multer({
-    storage: multerS3({
-        s3: s3,
-        bucket: process.env.AWS_S3_BUCKET_NAME,
-        acl: 'public-read',
-        metadata: (req, file, cb) => {
-            cb(null, { fieldName: file.fieldname });
-        },
-        key: (req, file, cb) => {
-            cb(null, `uploads/${Date.now().toString()}-${file.originalname}`);
-        },
-    }),
+    storage: storage,
     fileFilter: (req, file, cb) => {
+        console.log('File received:', file);
         const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (allowedMimeTypes.includes(file.mimetype)) {
             cb(null, true);
@@ -24,4 +17,33 @@ const upload = multer({
     },
 });
 
-module.exports = upload;
+const uploadToS3 = async (files) => {
+    try {
+        const uploadPromises = files.map((file) => {
+            const uploadParams = {
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                Key: `uploads/${Date.now()}-${file.originalname}`, 
+                Body: file.buffer,
+                 
+                ContentType: file.mimetype, 
+            };
+
+
+            const parallelUpload = new Upload({
+                client: s3Client,
+                params: uploadParams,
+            });
+
+            return parallelUpload.done();
+        });
+
+        const fileUrls = await Promise.all(uploadPromises);
+
+        return fileUrls.map((uploadResult) => uploadResult.Location); 
+    } catch (error) {
+        console.error('Error uploading files to S3:', error);
+        throw error; 
+    }
+};
+
+module.exports = { upload, uploadToS3 };
