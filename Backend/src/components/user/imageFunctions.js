@@ -2,7 +2,7 @@ const express = require('express');
 const { Upload } = require('@aws-sdk/lib-storage');
 const { upload, uploadToS3 } = require('../../middleware/multer')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const s3 = require('../../config/aws');
+const s3 = require('../../config/awsConfig.js');
 const { GetObjectCommand, DeleteObjectCommand,ListObjectsV2Command } = require('@aws-sdk/client-s3');
 
 

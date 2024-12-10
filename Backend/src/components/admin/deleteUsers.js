@@ -1,7 +1,7 @@
 const userModel = require("../../model/user")
 
 const deleteUser = async (req, res) => {
-  const { userId } = req.query
+  const { userId } = req.params
   try {
     const userDetails = await userModel.findById({ userId })
           

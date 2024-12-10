@@ -1,6 +1,6 @@
 const multer = require('multer');
 const { Upload } = require('@aws-sdk/lib-storage');
-const s3Client = require('../config/aws'); 
+const s3Client = require('../config/awsConfig.js'); 
 
 const storage = multer.memoryStorage();
 

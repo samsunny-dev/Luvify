@@ -11,6 +11,7 @@ const { getChatHistory } = require("../controller/other/chatController")
 const { getProfile, updateProfile} = require("../controller/userController/profileController.js");
 const { detectFaceController } = require("../controller/other/photoController");
 const upload = require("../middlewares/uploadMiddleware");
+const verificationRoute=require("./verificationRoute.js")
 
 
 const userRoute = express()
@@ -33,6 +34,7 @@ userRoute.get("/:receiverId", userAuthenticate, getChatHistory);
 
 userRoute.get("/profile", userAuthenticate, getProfile);
 userRoute.put("/profile", userAuthenticate, updateProfile);
+userRoute.use("/verify",userAuthenticate,verificationRoute)
 
 
 module.exports=userRoute
