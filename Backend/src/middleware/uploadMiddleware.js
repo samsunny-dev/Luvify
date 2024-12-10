@@ -2,7 +2,7 @@ const multer = require("multer");
 const path = require("path");
 
 // Configure Multer for file uploads
-const upload = multer({
+const uploadPhoto = multer({
     dest: "uploads/",
     fileFilter: (req, file, cb) => {
         const fileTypes = /jpeg|jpg|png/;
@@ -15,4 +15,4 @@ const upload = multer({
     },
 });
 
-module.exports = upload;
+module.exports = uploadPhoto;

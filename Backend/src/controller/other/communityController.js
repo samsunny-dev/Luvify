@@ -1,14 +1,26 @@
 const User = require("../../model/user");
-const Community = require("../../model/community");
+const Community = require("../../model/communitySchema");
 
 const getCommunities = async (req, res) => {
     try {
-        const communities = await Community.find().populate("members");
+        const communities = await Community.find()
+            .select("name description interests members") 
+            .populate({
+                path: "members",
+                select: "name email",
+            })
+            .populate({
+                path: "createdBy",
+                select: "name email",
+            });
+
+        console.log("communities found : ", communities)
         res.status(200).json(communities);
     } catch (error) {
         res.status(500).json({ message: "Error fetching Communities", error: error.message });
     }
 };
+
 
 const joinCommunity = async (req, res) => {
     const { communityId, userId } = req.body;
@@ -35,15 +47,30 @@ const joinCommunity = async (req, res) => {
         }
 
         if (community.members.includes(userId)) {
+          
             return res.status(400).json({ message: "User is already a member of this community" });
         }
+
+       
+
         community.members.push(userId);
+
+        const welcomeMessage = {
+            text: `${user.name} has joined the community!`,
+            sender: userId,
+        };
+        community.messages.push(welcomeMessage);
+
         await community.save();
+
 
         res.status(200).json({ message: "Successfully joined the community" });
     } catch (error) {
         res.status(500).json({ message: "Error joining community", error: error.message });
     }
 };
+
+
+
 
 module.exports = { getCommunities, joinCommunity };

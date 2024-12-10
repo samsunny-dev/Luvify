@@ -1,4 +1,4 @@
-const mongoose=require("mongoose")
+const mongoose=require("mongoose");
 
 const userSchema = new mongoose.Schema ({
     name: {type : String,},
@@ -114,7 +114,8 @@ const userSchema = new mongoose.Schema ({
     isVerified: {
         type: Boolean,
         default:false
-},
+    },
+ 
     verificationDetails: {
         faceMatchScore: Number,
         fingerprintId: String,
@@ -125,8 +126,6 @@ const userSchema = new mongoose.Schema ({
         type: Date,
     },
     
-   
-   
 
 }, {timestamps: true});
 

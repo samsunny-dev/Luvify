@@ -1,6 +1,7 @@
 const express = require("express")
 const verificationRoute = express()
-const User = require("../model/user")
+const User = require("../model/user");
+const  uploadPhoto  = require("../middleware/uploadMiddleware");
 
 verificationRoute.get("/status/:userId", async (req, res) => {
     const userId=req.params.userId
@@ -16,7 +17,7 @@ verificationRoute.get("/status/:userId", async (req, res) => {
     }
 });
 
-verificationRoute.post("/photo", upload.single("photo"), async (req, res) => {
+verificationRoute.post("/photo", uploadPhoto.single("photo"), async (req, res) => {
     const photo = req.file.path;
 
     const params = {
@@ -38,3 +39,7 @@ verificationRoute.post("/photo", upload.single("photo"), async (req, res) => {
         res.status(500).json({ message: "Error verifying photo", error: error.message });
     }
 });
+
+
+
+module.exports = verificationRoute;
