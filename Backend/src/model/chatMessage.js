@@ -7,16 +7,12 @@ const chatMessageSchema = new mongoose.Schema({
         required: true,
     },
 
-    receiver: {
+    receiver: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
-    },
-    community: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Community",
-        required: false,  
-    },
+    }],
+
     message: {
         type: String,
         required: true,

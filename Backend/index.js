@@ -7,6 +7,7 @@ const mongoDb = require("./src/config/server")
 const userRoute = require("./src/routes/userRoute")
 const adminRoute = require("./src/routes/adminRoute")
 const gameRoute = require("./src/routes/gameRoute")
+const eventRoute = require("./routes/eventRoute");
 const cookieParser = require("cookie-parser");
 
 const app = express()
@@ -21,6 +22,7 @@ app.use("/api/user", userRoute)
 app.use("/api/admin",adminRoute)
 app.use("/api/game", gameRoute);
 app.use("/api/photo", userRoute);
+app.use("/api/events", eventRoute);
 
 const server = http.createServer(app);
 

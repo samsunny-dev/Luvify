@@ -1,4 +1,4 @@
-const mongoose=require("mongoose");
+const mongoose=require("mongoose")
 
 const userSchema = new mongoose.Schema ({
     name: {type : String,},
@@ -100,8 +100,6 @@ const userSchema = new mongoose.Schema ({
 
     interestsOrHobbies: {
         type: [String],
-        enum: ["music", "sports", "technology", "art", "literature", "gaming", "travel", "fitness"],
-
     },
     
     instagramHandle: {
@@ -114,8 +112,7 @@ const userSchema = new mongoose.Schema ({
     isVerified: {
         type: Boolean,
         default:false
-    },
- 
+},
     verificationDetails: {
         faceMatchScore: Number,
         fingerprintId: String,
@@ -125,8 +122,13 @@ const userSchema = new mongoose.Schema ({
     }, otpExpires: {
         type: Date,
     },
-    
 
+    community: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"Community"
+    }],
+    
+    
 }, {timestamps: true});
 
 const User = mongoose.model("User", userSchema);
