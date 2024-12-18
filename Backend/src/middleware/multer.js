@@ -37,9 +37,15 @@ const uploadToS3 = async (files) => {
             return parallelUpload.done();
         });
 
-        const fileUrls = await Promise.all(uploadPromises);
+        const uploadResults = await Promise.all(uploadPromises);
+        const fileUrls = uploadResults.map(result => {
+            if (result && result.Location) {
+                return result.Location; 
+            }
+            throw new Error('S3 upload failed, no location found');
+        });
 
-        return fileUrls.map((uploadResult) => uploadResult.Location); 
+        return fileUrls;
     } catch (error) {
         console.error('Error uploading files to S3:', error);
         throw error; 

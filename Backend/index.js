@@ -2,13 +2,13 @@ const express = require("express")
 const cors=require("cors")
 const  http = require("http");
 const { Server } = require("socket.io");
+const cookieParser = require("cookie-parser");
 const mongoDb = require("./src/config/server")
- require("dotenv").config()
+require("dotenv").config()
+ 
 const userRoute = require("./src/routes/userRoute")
 const adminRoute = require("./src/routes/adminRoute")
 const gameRoute = require("./src/routes/gameRoute")
-const eventRoute = require("./routes/eventRoute");
-const cookieParser = require("cookie-parser");
 
 const app = express()
 
@@ -21,15 +21,13 @@ app.use(cors())
 app.use("/api/user", userRoute)
 app.use("/api/admin",adminRoute)
 app.use("/api/game", gameRoute);
-app.use("/api/photo", userRoute);
-app.use("/api/events", eventRoute);
 
 const server = http.createServer(app);
 
 const io = new Server (server, {
     cors: {
         origin: "*", // Replace "*" with your frontend URL in production
-        methods: ["GET", 'POST'],
+        methods: ["GET", "POST","PUT","DELETE"],
     },
 });
 

@@ -56,10 +56,10 @@ const userSchema = new mongoose.Schema ({
         required: true,
     },
 
-    photos: {
+    photos: [{
         type: [String],
        default:[]
-    },
+    }],
     location: {
         type: {
             type: String,

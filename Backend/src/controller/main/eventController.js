@@ -1,8 +1,8 @@
-const Event = require("../../model/evenModel");
+const Event = require("../../model/eventModel");
 
 const createEvent = async (res, req) => {
     const {title, description, date, location} = req.body;
-    const userId = req.userId;
+    const userId = req.params.userId;
 
     try {
         const newEvent = new Event ({
@@ -18,7 +18,7 @@ const createEvent = async (res, req) => {
         res.status(201).json({message: "Event Created Succesfully", event: newEvent})
 
     } catch (error) {
-        res.status(500).json({message: "Error Creating an Event", error = error.message})
+        res.status(500).json({message: "Error Creating an Event", error : error.message})
     }
 };
 

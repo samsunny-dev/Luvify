@@ -7,13 +7,15 @@ const userLogout=require("../controller/userController/userLogout")
 const { uploadImages,deleteS3Object,replaceImage,getAllImages } = require("../components/user/imageFunctions")
 const {upload} = require("../middleware/multer.js")
 const userVerifyController = require("../controller/userController/userVerify")
-const { getChatHistory } = require("../controller/other/chatController")
+const { getChatHistory } = require("../controller/main/chatController.js")
 const { getProfile, updateProfile} = require("../controller/userController/profileController.js");
 const { detectFaceController } = require("../controller/other/photoController");
 const uploadPhoto = require("../middleware/uploadMiddleware.js");
 const verificationRoute=require("./verificationRoute.js")
 const { getGroupChatHistory, sendGroupMessage } = require("../components/user/communityChat.js")
-const {getCommunities, joinCommunity}=require("../controller/other/communityController.js")
+const {getCommunities, joinCommunity} = require('../controller/main/communityController.js');
+
+const { getEvents, createEvent } = require("../controller/main/eventController.js")
 
 
 const userRoute = express()
@@ -38,10 +40,17 @@ userRoute.get("/profile", userAuthenticate, getProfile);
 userRoute.put("/profile", userAuthenticate, updateProfile);
 userRoute.use("/verify", userAuthenticate, verificationRoute)
 
-userRoute.get("/getCommunity", userAuthenticate, getCommunities)
-userRoute.post("/joinCommunity",userAuthenticate,joinCommunity)
+
 userRoute.get("/chatHistory", userAuthenticate, getGroupChatHistory)
 userRoute.post("/sendGroupMessage", userAuthenticate, sendGroupMessage)
+
+userRoute.post("/createEvent/:userId", userAuthenticate, createEvent);
+userRoute.get("/events", userAuthenticate, getEvents);
+
+userRoute.get("/communities", userAuthenticate,getCommunities);
+userRoute.post("/joinCommunity", userAuthenticate, joinCommunity);
+
+
 
 
 

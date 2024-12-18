@@ -1,5 +1,5 @@
 const express = require("express");
-const {startGame,submitGuess,getGameResults} = require("../controller/other/gameController");
+const {startGame,submitGuess,getGameResults} = require("../controller/main/gameController");
 
 
 const router = express.Router();

@@ -4,10 +4,19 @@ const { upload, uploadToS3 } = require('../../middleware/multer')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const s3 = require('../../config/awsConfig.js');
 const { GetObjectCommand, DeleteObjectCommand,ListObjectsV2Command } = require('@aws-sdk/client-s3');
-
+const User=require("../../model/user.js")
 
 const uploadImages = async (req, res) => {
+    const userId=req.user.userId
+
     try {
+
+        const user = await User.findById({ userId });
+        if (!user) {
+            return res.status(401).json({ message: "No user found with this ID" });
+        }
+        
+
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ message: 'No files uploaded' });
         }
@@ -15,12 +24,15 @@ const uploadImages = async (req, res) => {
         console.log('Files:', req.files);
 
         const fileUrls = await uploadToS3(req.files);
-
+        user.photos.push(...fileUrls);  
+        await user.save();
         res.status(200).json({
             message: 'Images uploaded successfully',
             imageUrls: fileUrls,
         });
         
+
+
     } catch (error) {
         console.error('Upload error:', error);
         res.status(500).json({ message: 'An error occurred during upload', error: error.message });

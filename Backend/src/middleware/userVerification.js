@@ -11,7 +11,7 @@ const userVerify = (req, res, next) => {
     }
 
     try {
-        const user_token = req.cookies.user_token;
+        const user_token = req.cookies.user_token || req.headers.authorization?.split(" ")[1];
 
         if (!user_token) {
             return res.status(403).json({

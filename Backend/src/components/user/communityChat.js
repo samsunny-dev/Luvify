@@ -1,6 +1,6 @@
 const chatMessage = require("../../model/chatMessage");
 
-exports.sendGroupMessage = async (req, res) => {
+const sendGroupMessage = async (req, res) => {
     try {
         const { communityId, message } = req.body;
         const userId = req.user.id; 
@@ -21,7 +21,7 @@ exports.sendGroupMessage = async (req, res) => {
 }; 
 
 
-exports.getGroupChatHistory = async (req, res) => {
+const getGroupChatHistory = async (req, res) => {
     try {
         const { communityId } = req.params;
 
@@ -35,3 +35,5 @@ exports.getGroupChatHistory = async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
+module.exports={getGroupChatHistory,sendGroupMessage}

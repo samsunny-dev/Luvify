@@ -1,4 +1,4 @@
-const Community = require("../../model/communityModel");
+const Community = require("../../model/communitySchema");
 
 const getCommunities = async (res, req) => {
     try {
@@ -23,6 +23,7 @@ const joinCommunity = async(req, res) => {
             return res.status(400).json({ message: "User already a member of this community" });
         }
         
+        user.communities = user.communities || [];
         user.community.push(communityId);
         await user.save()
         community.members.push(userId);
