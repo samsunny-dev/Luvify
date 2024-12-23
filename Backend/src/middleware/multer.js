@@ -8,7 +8,7 @@ const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
         console.log('File received:', file);
-        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp','audio/mp3'];
         if (allowedMimeTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {

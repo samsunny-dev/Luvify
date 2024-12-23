@@ -48,7 +48,6 @@ const getAllImages = async (req, res) => {
     }
   
     try {
-      // Step 1: List all objects in the bucket
       const listParams = {
         Bucket: bucketName,
       };
@@ -68,7 +67,6 @@ const getAllImages = async (req, res) => {
       imageUrls.push({ key: item.Key, url });
     }
 
-    // Step 3: Return the image URLs
     res.status(200).json(imageUrls);  
   
     } catch (err) {
@@ -97,7 +95,6 @@ const replaceImage = async (req, res) => {
             await s3.send(new DeleteObjectCommand(deleteParams)); 
         }
 
-        // Upload the new images
         const fileUrls = await uploadToS3(req.files); 
         fileUrls.forEach(url => newFileUrls.push(url));  
 

@@ -7,7 +7,7 @@ const userLogout=require("../controller/userController/userLogout")
 const { uploadImages,deleteS3Object,replaceImage,getAllImages } = require("../components/user/imageFunctions")
 const {upload} = require("../middleware/multer.js")
 const userVerifyController = require("../controller/userController/userVerify")
-const { getChatHistory } = require("../controller/main/chatController.js")
+const { getChatHistory, vanishMessages, sendMessage, deletedMessage } = require("../controller/main/chatController.js")
 const { getProfile, updateProfile} = require("../controller/userController/profileController.js");
 const { detectFaceController } = require("../controller/other/photoController");
 const uploadPhoto = require("../middleware/uploadMiddleware.js");
@@ -30,18 +30,24 @@ userRoute.post("/swipeLeft",userAuthenticate, swipeFunction.swipeLeft);
 userRoute.post("/swipeRight",userAuthenticate, swipeFunction.swipeRight)
 userRoute.post("/uploadImage",userAuthenticate,upload.array('images', 5),uploadImages)
 userRoute.put('/replace/:key', userAuthenticate, upload.array('images', 5), replaceImage);
+
 userRoute.get("/getImages", userAuthenticate, getAllImages)
 userRoute.delete('/remove/:key', userAuthenticate, deleteS3Object); 
 
-// userRoute.delete("/clearchat",userAuthenticate,deletechat)
-userRoute.get("/:receiverId", userAuthenticate, getChatHistory);
+
+//user personal chats
+userRoute.post("/send-message",userAuthenticate,upload.single('file'),sendMessage)
+userRoute.delete("/vanish-message",userAuthenticate,vanishMessages)
+userRoute.get("/chat-history/:receiverId", userAuthenticate, getChatHistory);
+userRoute.delete("/deletedMessage",userAuthenticate,deletedMessage)
 
 userRoute.get("/profile", userAuthenticate, getProfile);
 userRoute.put("/profile", userAuthenticate, updateProfile);
 userRoute.use("/verify", userAuthenticate, verificationRoute)
 
 
-userRoute.get("/chatHistory", userAuthenticate, getGroupChatHistory)
+
+userRoute.get("/groupChatHistory", userAuthenticate, getGroupChatHistory)
 userRoute.post("/sendGroupMessage", userAuthenticate, sendGroupMessage)
 
 userRoute.post("/createEvent/:userId", userAuthenticate, createEvent);

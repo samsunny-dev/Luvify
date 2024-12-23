@@ -17,7 +17,13 @@ const chatMessageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    image: {
+        type: String,
+    },
 
+    audio: {
+        type: String,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
