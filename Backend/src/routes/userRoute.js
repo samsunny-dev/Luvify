@@ -41,6 +41,7 @@ userRoute.delete("/vanish-message",userAuthenticate,vanishMessages)
 userRoute.get("/chat-history/:receiverId", userAuthenticate, getChatHistory);
 userRoute.delete("/deletedMessage",userAuthenticate,deletedMessage)
 
+//profile controls
 userRoute.get("/profile", userAuthenticate, getProfile);
 userRoute.put("/profile", userAuthenticate, updateProfile);
 userRoute.use("/verify", userAuthenticate, verificationRoute)
