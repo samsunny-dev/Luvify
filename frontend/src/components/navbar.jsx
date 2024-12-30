@@ -5,7 +5,7 @@ const Navbar = () => {
   return (
     <Box bg="primary" color="white" padding="16px">
       <Flex justify="space-between" align="center">
-        <Text fontSize="xl" fontWeight="bold">MyApp</Text>
+        <Text fontSize="xl" fontWeight="bold">Lovify</Text>
         <Flex>
           <Link to="/login">
             <Button colorScheme="teal" variant="outline" marginX="8px">
@@ -25,10 +25,4 @@ const Navbar = () => {
 
 export default Navbar;
 
-import React from 'react'
 
-export default function navbar() {
-  return (
-    <div>navbar</div>
-  )
-}

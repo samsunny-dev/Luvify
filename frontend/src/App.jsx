@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChakraProvider, Box } from '@chakra-ui/react';
 import Navbar from './components/Navbar';
-import Footer from './components/footer';
+import Footer from './components/Footer';
 import { Outlet, useLocation } from 'react-router-dom';
 
 
@@ -15,7 +15,7 @@ const App = () => {
             <Outlet/>
           </main>
           </Box>
-          {/* <Footer/> */}
+          <Footer/>
         </Box>
     </ChakraProvider>
   );
