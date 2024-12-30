@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, Flex, Text, Button } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
@@ -24,11 +25,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-import React from 'react'
-
-export default function navbar() {
-  return (
-    <div>navbar</div>
-  )
-}
