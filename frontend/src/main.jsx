@@ -2,15 +2,16 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
+import theme from './theme';  // Import the theme
 import App from './App';
-import './styles/global.scss';  // Global styles for the application
+import './styles/global.scss';
 
 const root = createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <App />
       </ChakraProvider>
     </BrowserRouter>
