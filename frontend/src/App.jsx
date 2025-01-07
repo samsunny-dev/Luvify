@@ -1,22 +1,15 @@
 import React from 'react';
-import { ChakraProvider, Box } from '@chakra-ui/react';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import { Outlet } from 'react-router-dom';
+import { Box } from '@chakra-ui/react';
+import { Routes, Route } from 'react-router-dom';
+import Landing from './pages/Landing';
 
 const App = () => {
   return (
-    <ChakraProvider>  
-      <Box minHeight="100vh" display="flex" flexDirection="column">
-        <Navbar />
-        <Box flex="1">
-          <main>
-            <Outlet />
-          </main>
-        </Box>
-        <Footer />
-      </Box>
-    </ChakraProvider>
+    <Box minH="100vh">
+      <Routes>
+        <Route path="/" element={<Landing />} />
+      </Routes>
+    </Box>
   );
 };
 

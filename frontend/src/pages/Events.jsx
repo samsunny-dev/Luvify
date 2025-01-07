@@ -1,286 +1,245 @@
 import React, { useState } from 'react';
 import {
   Box,
+  Container,
   Heading,
-  VStack,
   SimpleGrid,
+  Image,
   Text,
   Button,
-  Container,
-  Image,
+  VStack,
   HStack,
   Tag,
-  Input,
-  Select,
-  Flex,
-  IconButton,
-  useToast,
-  Badge,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
+  Avatar,
+  AvatarGroup,
   useColorModeValue,
+  Icon,
+  Badge,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Flex,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import {
-  FaCalendarAlt,
-  FaClock,
-  FaMapMarkerAlt,
-  FaUsers,
-  FaHeart,
-  FaSearch,
-  FaFilter,
-} from 'react-icons/fa';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { FaMapMarkerAlt, FaCalendar, FaUsers, FaSearch, FaFilter } from 'react-icons/fa';
 
 const MotionBox = motion(Box);
 
-// Mock data - replace with API calls
-const events = [
-  {
-    id: 1,
-    name: 'Singles Movie Night',
-    date: '2024-12-01',
-    time: '7:00 PM',
-    location: 'Central Cinema',
-    description: 'Join us for a romantic comedy night with fellow singles. Includes popcorn and networking!',
-    image: '/event1.jpg',
-    category: 'Entertainment',
-    attendees: 45,
-    maxAttendees: 60,
-    price: 'Free',
-    tags: ['Movies', 'Social', 'Indoor'],
-    isInterested: false,
-  },
-  {
-    id: 2,
-    name: 'Cooking Class & Wine Tasting',
-    date: '2024-12-05',
-    time: '6:30 PM',
-    location: 'Culinary Institute',
-    description: 'Learn to cook exotic dishes while meeting new people. Wine pairing included!',
-    image: '/event2.jpg',
-    category: 'Food & Drink',
-    attendees: 28,
-    maxAttendees: 30,
-    price: '$45',
-    tags: ['Cooking', 'Wine', 'Learning'],
-    isInterested: true,
-  },
-  {
-    id: 3,
-    name: 'Hiking Adventure',
-    date: '2024-12-10',
-    time: '9:00 AM',
-    location: 'Mountain Trails',
-    description: 'A beautiful hiking experience with like-minded outdoor enthusiasts.',
-    image: '/event3.jpg',
-    category: 'Outdoor',
-    attendees: 15,
-    maxAttendees: 20,
-    price: '$10',
-    tags: ['Hiking', 'Nature', 'Active'],
-    isInterested: false,
-  },
-];
+const EventCard = ({ event }) => {
+  const cardBg = useColorModeValue('white', 'gray.800');
+  
+  return (
+    <MotionBox
+      bg={cardBg}
+      rounded="xl"
+      overflow="hidden"
+      shadow="lg"
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Box position="relative">
+        <Image
+          src={event.image}
+          alt={event.title}
+          h="200px"
+          w="100%"
+          objectFit="cover"
+        />
+        <Badge
+          position="absolute"
+          top={4}
+          right={4}
+          colorScheme={event.category.color}
+          px={3}
+          py={1}
+          borderRadius="full"
+        >
+          {event.category.name}
+        </Badge>
+      </Box>
+
+      <Box p={6}>
+        <VStack align="start" spacing={4}>
+          <Heading size="md">{event.title}</Heading>
+          
+          <HStack color="gray.500" spacing={4}>
+            <HStack>
+              <Icon as={FaCalendar} />
+              <Text fontSize="sm">{event.date}</Text>
+            </HStack>
+            <HStack>
+              <Icon as={FaMapMarkerAlt} />
+              <Text fontSize="sm">{event.location}</Text>
+            </HStack>
+          </HStack>
+
+          <Text noOfLines={2} color="gray.600">
+            {event.description}
+          </Text>
+
+          <HStack justify="space-between" w="100%">
+            <AvatarGroup size="sm" max={3}>
+              {event.attendees.map((attendee, index) => (
+                <Avatar
+                  key={index}
+                  name={attendee.name}
+                  src={attendee.image}
+                />
+              ))}
+            </AvatarGroup>
+            <Text fontSize="sm" color="gray.500">
+              {event.attendees.length} attending
+            </Text>
+          </HStack>
+
+          <Button colorScheme="brand" size="sm" w="100%">
+            Join Event
+          </Button>
+        </VStack>
+      </Box>
+    </MotionBox>
+  );
+};
 
 const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [selectedTab, setSelectedTab] = useState(0);
-  const toast = useToast();
-  
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
 
-  const handleInterest = (eventId) => {
-    const event = events.find(e => e.id === eventId);
-    toast({
-      title: event.isInterested ? 'Removed from interested' : 'Added to interested',
-      description: event.isInterested 
-        ? `You are no longer interested in ${event.name}`
-        : `You are now interested in ${event.name}`,
-      status: 'success',
-      duration: 2000,
-    });
-  };
-
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || event.category === categoryFilter;
-    const matchesTab = (selectedTab === 0) || 
-                      (selectedTab === 1 && event.isInterested) ||
-                      (selectedTab === 2 && new Date(event.date) > new Date());
-    return matchesSearch && matchesCategory && matchesTab;
-  });
+  // Mock events data
+  const events = [
+    {
+      id: 1,
+      title: 'Singles Mixer Night',
+      date: 'Fri, Jan 12 • 8:00 PM',
+      location: 'The Rooftop Lounge, NYC',
+      description: 'Join us for a night of mingling, music, and making connections! Complimentary drinks and appetizers provided.',
+      image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7',
+      category: { name: 'Social', color: 'pink' },
+      attendees: [
+        { name: 'John Doe', image: 'https://bit.ly/dan-abramov' },
+        { name: 'Jane Smith', image: 'https://bit.ly/sage-adebayo' },
+        { name: 'Mike Johnson', image: 'https://bit.ly/kent-c-dodds' },
+        { name: 'Sarah Williams', image: 'https://bit.ly/ryan-florence' },
+      ],
+    },
+    {
+      id: 2,
+      title: 'Speed Dating @ Central Park',
+      date: 'Sat, Jan 13 • 3:00 PM',
+      location: 'Central Park, NYC',
+      description: 'Experience speed dating in the beautiful outdoors! Meet 10+ potential matches in a relaxed environment.',
+      image: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a',
+      category: { name: 'Dating', color: 'red' },
+      attendees: [
+        { name: 'Emily Brown', image: 'https://bit.ly/prosper-baba' },
+        { name: 'David Wilson', image: 'https://bit.ly/code-beast' },
+        { name: 'Lisa Anderson', image: 'https://bit.ly/sage-adebayo' },
+      ],
+    },
+    {
+      id: 3,
+      title: 'Cooking Class for Singles',
+      date: 'Sun, Jan 14 • 6:00 PM',
+      location: 'Culinary Institute, NYC',
+      description: 'Learn to cook delicious meals while meeting other food enthusiasts! All skill levels welcome.',
+      image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d',
+      category: { name: 'Workshop', color: 'green' },
+      attendees: [
+        { name: 'Tom Harris', image: 'https://bit.ly/dan-abramov' },
+        { name: 'Amy Lee', image: 'https://bit.ly/sage-adebayo' },
+        { name: 'Chris Martin', image: 'https://bit.ly/kent-c-dodds' },
+      ],
+    },
+    {
+      id: 4,
+      title: 'Singles Hiking Adventure',
+      date: 'Sat, Jan 20 • 9:00 AM',
+      location: 'Bear Mountain, NY',
+      description: 'Join fellow outdoor enthusiasts for a day of hiking, scenic views, and meaningful connections.',
+      image: 'https://images.unsplash.com/photo-1551632811-561732d1e306',
+      category: { name: 'Adventure', color: 'blue' },
+      attendees: [
+        { name: 'Rachel Green', image: 'https://bit.ly/prosper-baba' },
+        { name: 'Ross Geller', image: 'https://bit.ly/code-beast' },
+        { name: 'Monica Bing', image: 'https://bit.ly/sage-adebayo' },
+      ],
+    },
+  ];
 
   return (
-    <>
-      <Navbar />
-      <Box bg="gray.50" minH="100vh" py={8}>
-        <Container maxW="container.xl">
-          <VStack spacing={8}>
-            {/* Header */}
-            <Box textAlign="center">
-              <Heading size="xl" mb={2}>Discover Events</Heading>
-              <Text color="gray.600">
-                Meet new people and create memories at our exclusive singles events
-              </Text>
-            </Box>
+    <Box minH="100vh" bg={bgColor} pt={20}>
+      <Container maxW="7xl">
+        <VStack spacing={8} align="stretch">
+          {/* Header */}
+          <Box>
+            <Heading size="2xl" mb={4}>
+              Events Near You
+            </Heading>
+            <Text fontSize="lg" color="gray.600">
+              Meet like-minded people at our curated events
+            </Text>
+          </Box>
 
-            {/* Filters */}
-            <Tabs width="100%" onChange={setSelectedTab} colorScheme="purple">
-              <TabList>
-                <Tab>All Events</Tab>
-                <Tab>Interested</Tab>
-                <Tab>Upcoming</Tab>
-              </TabList>
+          {/* Search and Filter */}
+          <Flex gap={4} direction={{ base: 'column', md: 'row' }}>
+            <InputGroup maxW={{ base: 'full', md: '400px' }}>
+              <InputLeftElement pointerEvents="none">
+                <Icon as={FaSearch} color="gray.400" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                bg={useColorModeValue('white', 'gray.800')}
+              />
+            </InputGroup>
+            <HStack spacing={2}>
+              <Button leftIcon={<FaFilter />} variant="outline">
+                Filter
+              </Button>
+              <Button leftIcon={<FaMapMarkerAlt />} variant="outline">
+                Location
+              </Button>
+            </HStack>
+          </Flex>
 
-              <Flex mt={4} gap={4} direction={{ base: 'column', md: 'row' }}>
-                <Input
-                  placeholder="Search events..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  bg={bgColor}
-                  flex={1}
-                  leftIcon={<FaSearch />}
-                />
-                <Select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  bg={bgColor}
-                  w={{ base: 'full', md: '200px' }}
-                >
-                  <option value="all">All Categories</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Food & Drink">Food & Drink</option>
-                  <option value="Outdoor">Outdoor</option>
-                </Select>
-              </Flex>
+          {/* Event Categories */}
+          <HStack spacing={4} overflowX="auto" py={4}>
+            {['All Events', 'Social', 'Dating', 'Workshop', 'Adventure'].map((category) => (
+              <Tag
+                key={category}
+                size="lg"
+                variant="subtle"
+                colorScheme={category === 'All Events' ? 'gray' : 'brand'}
+                borderRadius="full"
+                cursor="pointer"
+                _hover={{ bg: 'brand.50' }}
+              >
+                {category}
+              </Tag>
+            ))}
+          </HStack>
 
-              <TabPanels>
-                <TabPanel px={0}>
-                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} mt={6}>
-                    {filteredEvents.map((event) => (
-                      <MotionBox
-                        key={event.id}
-                        bg={bgColor}
-                        borderRadius="xl"
-                        overflow="hidden"
-                        borderWidth="1px"
-                        borderColor={borderColor}
-                        whileHover={{ y: -4 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Image
-                          src={event.image}
-                          alt={event.name}
-                          h="200px"
-                          w="100%"
-                          objectFit="cover"
-                          fallbackSrc="https://via.placeholder.com/400x200"
-                        />
-                        
-                        <Box p={6}>
-                          <VStack align="stretch" spacing={4}>
-                            <Flex justify="space-between" align="center">
-                              <Badge colorScheme="purple" fontSize="sm">
-                                {event.category}
-                              </Badge>
-                              <Text color="gray.500" fontSize="sm">
-                                {event.price}
-                              </Text>
-                            </Flex>
+          {/* Events Grid */}
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </SimpleGrid>
 
-                            <Heading size="md">{event.name}</Heading>
-                            
-                            <Text color="gray.600" noOfLines={2}>
-                              {event.description}
-                            </Text>
-
-                            <HStack spacing={4} color="gray.600">
-                              <HStack>
-                                <FaCalendarAlt />
-                                <Text fontSize="sm">{event.date}</Text>
-                              </HStack>
-                              <HStack>
-                                <FaClock />
-                                <Text fontSize="sm">{event.time}</Text>
-                              </HStack>
-                            </HStack>
-
-                            <HStack spacing={4} color="gray.600">
-                              <HStack>
-                                <FaMapMarkerAlt />
-                                <Text fontSize="sm">{event.location}</Text>
-                              </HStack>
-                              <HStack>
-                                <FaUsers />
-                                <Text fontSize="sm">
-                                  {event.attendees}/{event.maxAttendees}
-                                </Text>
-                              </HStack>
-                            </HStack>
-
-                            <Box>
-                              {event.tags.map((tag, index) => (
-                                <Tag
-                                  key={index}
-                                  size="sm"
-                                  colorScheme="purple"
-                                  variant="subtle"
-                                  mr={2}
-                                  mb={2}
-                                >
-                                  {tag}
-                                </Tag>
-                              ))}
-                            </Box>
-
-                            <HStack>
-                              <Button
-                                colorScheme="purple"
-                                size="md"
-                                flex={1}
-                                isDisabled={event.attendees >= event.maxAttendees}
-                              >
-                                {event.attendees >= event.maxAttendees ? 'Sold Out' : 'RSVP Now'}
-                              </Button>
-                              <IconButton
-                                icon={<FaHeart />}
-                                colorScheme={event.isInterested ? 'red' : 'gray'}
-                                variant="ghost"
-                                aria-label="Interest"
-                                onClick={() => handleInterest(event.id)}
-                              />
-                            </HStack>
-                          </VStack>
-                        </Box>
-                      </MotionBox>
-                    ))}
-                  </SimpleGrid>
-                </TabPanel>
-                <TabPanel>
-                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {/* Same event cards but filtered for interested events */}
-                  </SimpleGrid>
-                </TabPanel>
-                <TabPanel>
-                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {/* Same event cards but filtered for upcoming events */}
-                  </SimpleGrid>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </VStack>
-        </Container>
-      </Box>
-      <Footer />
-    </>
+          {/* Load More Button */}
+          <Button
+            size="lg"
+            variant="outline"
+            colorScheme="brand"
+            mx="auto"
+            mt={8}
+          >
+            Load More Events
+          </Button>
+        </VStack>
+      </Container>
+    </Box>
   );
 };
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#F7FAFC"/>
+  
+  <!-- Chat Bubbles -->
+  <g opacity="0.1">
+    <circle cx="150" cy="150" r="50" fill="#E53E3E"/>
+    <circle cx="250" cy="150" r="50" fill="#ED64A6"/>
+    <path d="M150 200L250 200" stroke="#E53E3E" stroke-width="4"/>
+  </g>
+  
+  <!-- Message Icon -->
+  <rect x="160" y="120" width="80" height="60" rx="8" fill="#E53E3E"/>
+  <path d="M160 140L200 160L240 140" stroke="white" stroke-width="2"/>
+  
+  <!-- Heart Icons -->
+  <path d="M180 80C170 80 160 90 160 100C160 120 180 130 180 130C180 130 200 120 200 100C200 90 190 80 180 80Z" fill="#ED64A6"/>
+  <path d="M220 80C210 80 200 90 200 100C200 120 220 130 220 130C220 130 240 120 240 100C240 90 230 80 220 80Z" fill="#ED64A6"/>
+</svg>

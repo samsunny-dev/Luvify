@@ -1,118 +1,235 @@
 import React from 'react';
-import { Box, Container, Heading, Text, Button, Stack, Image, Grid, VStack, HStack, Icon } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
-import { FaHeart, FaUserFriends, FaCalendarAlt } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  Button,
+  VStack,
+  HStack,
+  Image,
+  SimpleGrid,
+  useColorModeValue,
+  Icon,
+  Flex,
+  chakra,
+} from '@chakra-ui/react';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import {
+  FaHeart,
+  FaComments,
+  FaUserFriends,
+  FaSearch,
+  FaStar,
+  FaArrowRight,
+} from 'react-icons/fa';
+import { pageTransitions, staggerContainer, staggerItem, float, pulse } from '../components/animations';
+import Logo from '/assets/logo.svg';
+import HeroBg from '/assets/hero-bg.svg';
+import CoupleIllustration from '/assets/couple-illustration.svg';
+
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
+const MotionText = motion(Text);
+
+const Feature = ({ icon, title, description }) => {
+  const { ref, inView } = useInView({
+    threshold: 0.3,
+    triggerOnce: true,
+  });
+
+  return (
+    <MotionBox
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5 }}
+      p={8}
+      bg={useColorModeValue('white', 'gray.800')}
+      rounded="2xl"
+      shadow="lg"
+      textAlign="center"
+    >
+      <Flex
+        w={16}
+        h={16}
+        align="center"
+        justify="center"
+        color="white"
+        rounded="full"
+        bg="brand.500"
+        mb={4}
+        mx="auto"
+      >
+        <Icon as={icon} boxSize={8} />
+      </Flex>
+      <Heading size="md" mb={4}>
+        {title}
+      </Heading>
+      <Text color="gray.500">{description}</Text>
+    </MotionBox>
+  );
+};
+
+const Statistic = ({ number, label }) => {
+  const { ref, inView } = useInView({
+    threshold: 0.3,
+    triggerOnce: true,
+  });
+
+  return (
+    <MotionBox
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={inView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.5 }}
+      textAlign="center"
+    >
+      <Heading
+        size="3xl"
+        bgGradient="linear(to-r, brand.400, brand.600)"
+        bgClip="text"
+      >
+        {number}
+      </Heading>
+      <Text color="gray.500" fontSize="lg">
+        {label}
+      </Text>
+    </MotionBox>
+  );
+};
 
 const Landing = () => {
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const textColor = useColorModeValue('gray.600', 'gray.400');
+  const headingColor = useColorModeValue('gray.800', 'white');
+
   return (
-    <Box>
+    <Box bg={bgColor} minH="100vh">
       {/* Hero Section */}
-      <Box bg="orange.100" py={20}>
-        <Container maxW="container.xl">
-          <Stack spacing={8} direction={{ base: 'column', md: 'row' }} align="center">
-            <Box flex={1}>
-              <Heading as="h1" size="2xl" mb={4}>
-                Match Me
+      <Box
+        position="relative"
+        bgImage={`url(${HeroBg})`}
+        bgSize="cover"
+        bgPosition="center"
+        py={20}
+      >
+        <Container maxW="7xl">
+          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={20} alignItems="center">
+            <MotionBox
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <Heading
+                as="h1"
+                size="3xl"
+                color={headingColor}
+                lineHeight="shorter"
+                mb={6}
+              >
+                Find Your Perfect Match with{' '}
+                <chakra.span color="brand.500">Luvify</chakra.span>
               </Heading>
-              <Text fontSize="xl" mb={6}>
-                Find Your Perfect Match With Us.
+              <Text fontSize="xl" color={textColor} mb={8}>
+                Experience the magic of meaningful connections. Join thousands of people who have found their perfect match on Luvify.
               </Text>
-              <Link to="/signup">
-                <Button colorScheme="purple" size="lg" rounded="full">
+              <HStack spacing={4}>
+                <Button
+                  as={RouterLink}
+                  to="/signup"
+                  size="lg"
+                  colorScheme="brand"
+                  rightIcon={<FaArrowRight />}
+                >
                   Get Started
                 </Button>
-              </Link>
-            </Box>
-            <Box flex={1}>
-              <Image 
-                src="/couple-hero.jpg"
-                alt="Happy couple"
-                borderRadius="lg"
-                fallbackSrc="https://via.placeholder.com/500x300"
-              />
-            </Box>
-          </Stack>
+                <Button
+                  as={RouterLink}
+                  to="/login"
+                  size="lg"
+                  variant="outline"
+                  colorScheme="brand"
+                >
+                  Sign In
+                </Button>
+              </HStack>
+            </MotionBox>
+            <MotionBox
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <Image src={CoupleIllustration} alt="Couple Illustration" />
+            </MotionBox>
+          </SimpleGrid>
         </Container>
       </Box>
 
       {/* Features Section */}
       <Box py={20}>
-        <Container maxW="container.xl">
-          <VStack spacing={16}>
-            {/* Main Feature Image */}
-            <Box w="100%" position="relative">
-              <Image
-                src="/couple-outdoors.jpg"
-                alt="Couple outdoors"
-                w="100%"
-                h="400px"
-                objectFit="cover"
-                borderRadius="xl"
+        <Container maxW="7xl">
+          <VStack spacing={12}>
+            <Box textAlign="center" maxW="2xl" mx="auto">
+              <Heading color={headingColor} mb={4}>
+                Why Choose Luvify?
+              </Heading>
+              <Text fontSize="lg" color={textColor}>
+                Discover what makes Luvify the perfect platform for finding meaningful connections.
+              </Text>
+            </Box>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8} w="full">
+              <Feature
+                icon={FaHeart}
+                title="Smart Matching"
+                description="Our advanced algorithm ensures you meet people who truly match your interests and values."
               />
-            </Box>
-
-            {/* Swipe Match Celebrate Section */}
-            <Box textAlign="center" w="100%">
-              <Heading mb={8}>SWIPE. MATCH. CELEBRATE.</Heading>
-              <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={8}>
-                <Image
-                  src="/card1.jpg"
-                  alt="Dating card"
-                  borderRadius="xl"
-                  transform="rotate(-5deg)"
-                />
-                <Image
-                  src="/card2.jpg"
-                  alt="Dating card"
-                  borderRadius="xl"
-                />
-                <Image
-                  src="/card3.jpg"
-                  alt="Dating card"
-                  borderRadius="xl"
-                  transform="rotate(5deg)"
-                />
-              </Grid>
-            </Box>
-
-            {/* Community Section */}
-            <Box w="100%" bg="green.50" p={10} borderRadius="xl">
-              <Stack direction={{ base: 'column', md: 'row' }} spacing={8} align="center">
-                <Box flex={1}>
-                  <Image
-                    src="/community-couple.jpg"
-                    alt="Community couple"
-                    borderRadius="xl"
-                  />
-                </Box>
-                <VStack flex={1} align="start" spacing={4}>
-                  <Heading>"YOUR VIBE ATTRACTS YOUR TRIBE"</Heading>
-                  <Text fontSize="lg">Join our vibrant communities and connect with like-minded people.</Text>
-                  <Link to="/communities">
-                    <Button colorScheme="green" size="lg" rounded="full">
-                      Join Communities
-                    </Button>
-                  </Link>
-                </VStack>
-              </Stack>
-            </Box>
+              <Feature
+                icon={FaUserFriends}
+                title="Verified Profiles"
+                description="Feel secure knowing that all profiles are verified and authentic."
+              />
+              <Feature
+                icon={FaComments}
+                title="Meaningful Conversations"
+                description="Connect through rich conversations with icebreakers and conversation starters."
+              />
+            </SimpleGrid>
           </VStack>
         </Container>
       </Box>
 
-      {/* Navigation */}
-      <Box position="fixed" top={0} left={0} right={0} bg="white" py={4} px={8} boxShadow="sm">
-        <Container maxW="container.xl">
-          <HStack justify="space-between">
-            <Link to="/">
-              <Box fontSize="2xl" fontWeight="bold">Luvify</Box>
-            </Link>
-            <HStack spacing={8}>
-              <Link to="/events">Events</Link>
-              <Link to="/communities">Communities</Link>
-              <Link to="/signin">Sign In</Link>
-            </HStack>
-          </HStack>
+      {/* Statistics Section */}
+      <Box bg={useColorModeValue('white', 'gray.800')} py={20}>
+        <Container maxW="7xl">
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
+            <Statistic number="1M+" label="Active Users" />
+            <Statistic number="500K" label="Successful Matches" />
+            <Statistic number="4.8" label="App Rating" />
+          </SimpleGrid>
+        </Container>
+      </Box>
+
+      {/* CTA Section */}
+      <Box py={20}>
+        <Container maxW="3xl" textAlign="center">
+          <Heading color={headingColor} mb={6}>
+            Ready to Find Your Perfect Match?
+          </Heading>
+          <Text fontSize="lg" color={textColor} mb={8}>
+            Join Luvify today and start your journey to finding meaningful connections. Your perfect match is just a click away.
+          </Text>
+          <Button
+            as={RouterLink}
+            to="/signup"
+            size="lg"
+            colorScheme="brand"
+            rightIcon={<FaArrowRight />}
+          >
+            Get Started Now
+          </Button>
         </Container>
       </Box>
     </Box>

@@ -1,256 +1,220 @@
-import { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
-  FormControl,
-  FormLabel,
+  Container,
   Input,
   Button,
-  Stack,
-  Heading,
   Text,
-  Select,
-  Checkbox,
-  Divider,
-  HStack,
   VStack,
-  useToast,
-  Container,
-  InputGroup,
-  InputRightElement,
-  IconButton,
-} from "@chakra-ui/react";
-import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../services/authService";
+  Image,
+  Select,
+  useColorModeValue,
+  FormControl,
+  FormLabel,
+} from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
-const Signup = () => {
+const MotionBox = motion(Box);
+
+const SignUp = () => {
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    username: "",
-    firstName: "",
-    lastName: "",
-    gender: "",
-    dob: "",
-    interests: [],
+    firstName: '',
+    lastName: '',
+    email: '',
+    dob: '',
+    gender: '',
+    preferredGenders: '',
+    interests: '',
+    location: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const navigate = useNavigate();
-  const toast = useToast();
+
+  const bgColor = useColorModeValue('blue.50', 'blue.900');
+  const cardBg = useColorModeValue('white', 'gray.800');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!agreeToTerms) {
-      toast({
-        title: "Agreement Required",
-        description: "Please agree to the Terms and Privacy Policy",
-        status: "warning",
-        duration: 3000,
-      });
-      return;
-    }
-    try {
-      await authService.signup(formData);
-      toast({
-        title: "Account created.",
-        description: "Welcome to Luvify! Please log in to continue.",
-        status: "success",
-        duration: 3000,
-      });
-      navigate("/login");
-    } catch (error) {
-      toast({
-        title: "Signup failed",
-        description: error.message,
-        status: "error",
-        duration: 3000,
-      });
-    }
-  };
-
-  const handleSocialSignup = (provider) => {
-    // Implement social media signup
-    console.log(`Signing up with ${provider}`);
+    // Add sign up logic here
   };
 
   return (
-    <Container maxW="container.sm" py={8}>
-      <VStack spacing={8} align="stretch">
-        <Box textAlign="center">
-          <Heading size="xl">Create Your Account</Heading>
-          <Text mt={2} color="gray.600">
-            Join Luvify and start your journey to find love
-          </Text>
-        </Box>
+    <Box minH="100vh" bg={bgColor}>
+      {/* Logo */}
+      <Box position="absolute" top={4} left={4}>
+        <RouterLink to="/">
+          <Image src="/logo.png" alt="Luvify Logo" h="40px" />
+        </RouterLink>
+      </Box>
 
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={6}>
-            <HStack spacing={4}>
-              <FormControl isRequired>
-                <FormLabel>First Name</FormLabel>
-                <Input
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder="John"
-                />
-              </FormControl>
-              <FormControl isRequired>
-                <FormLabel>Last Name</FormLabel>
-                <Input
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Doe"
-                />
-              </FormControl>
-            </HStack>
+      <Container maxW="7xl" py={{ base: 20, md: 28 }}>
+        <Box
+          display="flex"
+          flexDirection={{ base: 'column', md: 'row' }}
+          gap={8}
+          alignItems="center"
+        >
+          {/* Left Side - Image */}
+          <MotionBox
+            flex={1}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Image
+              src="/couple-beach.jpg"
+              alt="Couple on Beach"
+              w="full"
+              h="800px"
+              objectFit="cover"
+              rounded="2xl"
+            />
+          </MotionBox>
 
-            <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
-              <Input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your@email.com"
-              />
-            </FormControl>
+          {/* Right Side - Sign Up Form */}
+          <MotionBox
+            flex={1}
+            bg={cardBg}
+            p={8}
+            rounded="2xl"
+            shadow="xl"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <VStack spacing={6} align="stretch">
+              <Text fontSize="3xl" fontWeight="bold">
+                Create Account
+              </Text>
 
-            <FormControl isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Choose a unique username"
-              />
-            </FormControl>
+              <Text fontSize="lg" color="gray.600">
+                "You deserve better, so we've designed great ways for you to date more and stress less."
+              </Text>
 
-            <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
-              <InputGroup>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Create a strong password"
-                />
-                <InputRightElement>
-                  <IconButton
-                    icon={showPassword ? <FaEyeSlash /> : <FaEye />}
-                    onClick={() => setShowPassword(!showPassword)}
-                    variant="ghost"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+              <VStack as="form" spacing={4} onSubmit={handleSubmit}>
+                <FormControl>
+                  <Input
+                    name="firstName"
+                    placeholder="First Name"
+                    size="lg"
+                    value={formData.firstName}
+                    onChange={handleChange}
                   />
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
+                </FormControl>
 
-            <HStack spacing={4}>
-              <FormControl isRequired>
-                <FormLabel>Gender</FormLabel>
-                <Select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  placeholder="Select gender"
+                <FormControl>
+                  <Input
+                    name="lastName"
+                    placeholder="Last Name"
+                    size="lg"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <Input
+                    name="email"
+                    placeholder="E-mail"
+                    size="lg"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <Input
+                    name="dob"
+                    placeholder="D.O.B"
+                    size="lg"
+                    type="date"
+                    value={formData.dob}
+                    onChange={handleChange}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <Select
+                    name="gender"
+                    placeholder="Gender"
+                    size="lg"
+                    value={formData.gender}
+                    onChange={handleChange}
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="non-binary">Non-binary</option>
+                    <option value="other">Other</option>
+                  </Select>
+                </FormControl>
+
+                <FormControl>
+                  <Select
+                    name="preferredGenders"
+                    placeholder="Preferred Genders"
+                    size="lg"
+                    value={formData.preferredGenders}
+                    onChange={handleChange}
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="all">All</option>
+                  </Select>
+                </FormControl>
+
+                <FormControl>
+                  <Input
+                    name="interests"
+                    placeholder="Interests (comma separated)"
+                    size="lg"
+                    value={formData.interests}
+                    onChange={handleChange}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <Input
+                    name="location"
+                    placeholder="Location"
+                    size="lg"
+                    value={formData.location}
+                    onChange={handleChange}
+                  />
+                </FormControl>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  colorScheme="blue"
+                  w="full"
+                  rounded="xl"
                 >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </Select>
-              </FormControl>
+                  Sign Up
+                </Button>
+              </VStack>
 
-              <FormControl isRequired>
-                <FormLabel>Date of Birth</FormLabel>
-                <Input
-                  type="date"
-                  name="dob"
-                  value={formData.dob}
-                  onChange={handleChange}
-                />
-              </FormControl>
-            </HStack>
-
-            <FormControl>
-              <FormLabel>Interests</FormLabel>
-              <Input
-                name="interests"
-                placeholder="e.g., hiking, movies, cooking"
-                onChange={handleChange}
-              />
-            </FormControl>
-
-            <Checkbox
-              isChecked={agreeToTerms}
-              onChange={(e) => setAgreeToTerms(e.target.checked)}
-            >
-              I agree to the{" "}
-              <Link color="purple.500" href="/terms">
-                Terms
-              </Link>{" "}
-              and{" "}
-              <Link color="purple.500" href="/privacy">
-                Privacy Policy
-              </Link>
-            </Checkbox>
-
-            <Button
-              type="submit"
-              colorScheme="purple"
-              size="lg"
-              isDisabled={!agreeToTerms}
-            >
-              Create Account
-            </Button>
-          </Stack>
-        </form>
-
-        <Stack spacing={4}>
-          <Divider />
-          <Text textAlign="center">Or sign up with</Text>
-          <HStack spacing={4} justify="center">
-            <Button
-              leftIcon={<FaGoogle />}
-              onClick={() => handleSocialSignup("google")}
-              colorScheme="red"
-              variant="outline"
-              w="full"
-            >
-              Google
-            </Button>
-            <Button
-              leftIcon={<FaFacebook />}
-              onClick={() => handleSocialSignup("facebook")}
-              colorScheme="facebook"
-              variant="outline"
-              w="full"
-            >
-              Facebook
-            </Button>
-          </HStack>
-        </Stack>
-
-        <Text textAlign="center">
-          Already have an account?{" "}
-          <Link to="/login" color="purple.500">
-            Sign in
-          </Link>
-        </Text>
-      </VStack>
-    </Container>
+              <Text textAlign="center" color="gray.600">
+                Already have an account?{' '}
+                <RouterLink to="/signin">
+                  <Text as="span" color="blue.500" fontWeight="bold">
+                    Sign In
+                  </Text>
+                </RouterLink>
+              </Text>
+            </VStack>
+          </MotionBox>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 
-export default Signup;
+export default SignUp;
