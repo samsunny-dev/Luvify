@@ -11,17 +11,28 @@ import {
   useColorModeValue,
   FormControl,
   FormLabel,
+  useToast,
+  InputGroup,
+  InputRightElement,
 } from '@chakra-ui/react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import Logo from '/assets/logo.svg';
 
 const MotionBox = motion(Box);
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     dob: '',
     gender: '',
     preferredGenders: '',
@@ -40,9 +51,54 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add sign up logic here
+    
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!formData.email || !formData.password || !formData.firstName || !formData.lastName) {
+      toast({
+        title: "Required fields missing",
+        description: "Please fill in all required fields",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // TODO: Add your API call here
+      // const response = await axios.post('/api/signup', formData);
+      
+      toast({
+        title: "Account created successfully!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      navigate('/login');
+    } catch (error) {
+      toast({
+        title: "Error creating account",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,7 +106,7 @@ const SignUp = () => {
       {/* Logo */}
       <Box position="absolute" top={4} left={4}>
         <RouterLink to="/">
-          <Image src="/logo.png" alt="Luvify Logo" h="40px" />
+          <Image src={Logo} alt="Luvify Logo" h="40px" />
         </RouterLink>
       </Box>
 
@@ -69,10 +125,10 @@ const SignUp = () => {
             transition={{ duration: 0.5 }}
           >
             <Image
-              src="/couple-beach.jpg"
-              alt="Couple on Beach"
+              src="/assets/couple-illustration.svg"
+              alt="Couple Illustration"
               w="full"
-              h="800px"
+              h="auto"
               objectFit="cover"
               rounded="2xl"
             />
@@ -95,11 +151,12 @@ const SignUp = () => {
               </Text>
 
               <Text fontSize="lg" color="gray.600">
-                "You deserve better, so we've designed great ways for you to date more and stress less."
+                Find meaningful connections with Luvify
               </Text>
 
               <VStack as="form" spacing={4} onSubmit={handleSubmit}>
-                <FormControl>
+                <FormControl isRequired>
+                  <FormLabel>First Name</FormLabel>
                   <Input
                     name="firstName"
                     placeholder="First Name"
@@ -109,7 +166,8 @@ const SignUp = () => {
                   />
                 </FormControl>
 
-                <FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Last Name</FormLabel>
                   <Input
                     name="lastName"
                     placeholder="Last Name"
@@ -119,7 +177,8 @@ const SignUp = () => {
                   />
                 </FormControl>
 
-                <FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Email</FormLabel>
                   <Input
                     name="email"
                     placeholder="E-mail"
@@ -130,7 +189,52 @@ const SignUp = () => {
                   />
                 </FormControl>
 
+                <FormControl isRequired>
+                  <FormLabel>Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      name="password"
+                      placeholder="Password"
+                      size="lg"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={handleChange}
+                    />
+                    <InputRightElement h="full">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      name="confirmPassword"
+                      placeholder="Confirm Password"
+                      size="lg"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                    />
+                    <InputRightElement h="full">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+
                 <FormControl>
+                  <FormLabel>Date of Birth</FormLabel>
                   <Input
                     name="dob"
                     placeholder="D.O.B"
@@ -142,9 +246,10 @@ const SignUp = () => {
                 </FormControl>
 
                 <FormControl>
+                  <FormLabel>Gender</FormLabel>
                   <Select
                     name="gender"
-                    placeholder="Gender"
+                    placeholder="Select Gender"
                     size="lg"
                     value={formData.gender}
                     onChange={handleChange}
@@ -157,9 +262,10 @@ const SignUp = () => {
                 </FormControl>
 
                 <FormControl>
+                  <FormLabel>Interested In</FormLabel>
                   <Select
                     name="preferredGenders"
-                    placeholder="Preferred Genders"
+                    placeholder="Select Preference"
                     size="lg"
                     value={formData.preferredGenders}
                     onChange={handleChange}
@@ -171,6 +277,7 @@ const SignUp = () => {
                 </FormControl>
 
                 <FormControl>
+                  <FormLabel>Interests</FormLabel>
                   <Input
                     name="interests"
                     placeholder="Interests (comma separated)"
@@ -181,6 +288,7 @@ const SignUp = () => {
                 </FormControl>
 
                 <FormControl>
+                  <FormLabel>Location</FormLabel>
                   <Input
                     name="location"
                     placeholder="Location"
@@ -193,22 +301,22 @@ const SignUp = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  colorScheme="blue"
+                  colorScheme="brand"
                   w="full"
                   rounded="xl"
+                  isLoading={loading}
+                  loadingText="Creating Account..."
                 >
                   Sign Up
                 </Button>
-              </VStack>
 
-              <Text textAlign="center" color="gray.600">
-                Already have an account?{' '}
-                <RouterLink to="/signin">
-                  <Text as="span" color="blue.500" fontWeight="bold">
+                <Text textAlign="center">
+                  Already have an account?{' '}
+                  <RouterLink to="/login" style={{ color: 'var(--chakra-colors-brand-500)', fontWeight: 'semibold' }}>
                     Sign In
-                  </Text>
-                </RouterLink>
-              </Text>
+                  </RouterLink>
+                </Text>
+              </VStack>
             </VStack>
           </MotionBox>
         </Box>

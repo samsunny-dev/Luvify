@@ -17,22 +17,81 @@ import {
   useColorModeValue,
   Link as ChakraLink,
   Icon,
+  useToast,
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { FaHeart } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import Navbar from '../components/navbar';
-import { images } from '../assets/images';
+import Logo from '/assets/logo.svg';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
   const navigate = useNavigate();
+  const toast = useToast();
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.email || !formData.password) {
+      toast({
+        title: "Required fields missing",
+        description: "Please enter both email and password",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // TODO: Add your API call here
+      // const response = await axios.post('/api/login', formData);
+      
+      toast({
+        title: "Login successful!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid email or password",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Box bg={bgColor} minH="100vh">
-      <Navbar />
+      {/* Logo */}
+      <Box position="absolute" top={4} left={4}>
+        <Link to="/">
+          <Image src={Logo} alt="Luvify Logo" h="40px" />
+        </Link>
+      </Box>
+
       <Container maxW="7xl" py={{ base: 20, md: 28 }}>
         <Grid
           templateColumns={{ base: '1fr', md: '1fr 1fr' }}
@@ -49,7 +108,7 @@ const Login = () => {
             maxW="md"
             mx="auto"
           >
-            <VStack spacing={6} align="center">
+            <VStack spacing={6} align="center" as="form" onSubmit={handleSubmit}>
               <Icon as={FaHeart} w={12} h={12} color="brand.500" />
               <Heading size="xl" color="brand.500">
                 Welcome Back
@@ -57,68 +116,84 @@ const Login = () => {
               <Text color="gray.600" textAlign="center">
                 Sign in to continue your journey to love
               </Text>
-            </VStack>
 
-            <Stack spacing={4} mt={8}>
-              <FormControl id="email">
-                <FormLabel>Email</FormLabel>
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  size="lg"
-                />
-              </FormControl>
-
-              <FormControl id="password">
-                <FormLabel>Password</FormLabel>
-                <InputGroup>
+              <Stack spacing={4} w="full">
+                <FormControl id="email" isRequired>
+                  <FormLabel>Email</FormLabel>
                   <Input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
+                    name="email"
+                    type="email"
+                    placeholder="your@email.com"
                     size="lg"
+                    value={formData.email}
+                    onChange={handleChange}
                   />
-                  <InputRightElement h="full">
-                    <Button
-                      variant="ghost"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-              </FormControl>
+                </FormControl>
 
-              <Button colorScheme="brand" size="lg" w="full" mt={6}>
-                Sign In
-              </Button>
+                <FormControl id="password" isRequired>
+                  <FormLabel>Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      size="lg"
+                      value={formData.password}
+                      onChange={handleChange}
+                    />
+                    <InputRightElement h="full">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
 
-              <Text textAlign="center" mt={4}>
-                Don't have an account?{' '}
+                <Button
+                  type="submit"
+                  colorScheme="brand"
+                  size="lg"
+                  w="full"
+                  mt={6}
+                  isLoading={loading}
+                  loadingText="Signing in..."
+                >
+                  Sign In
+                </Button>
+
+                <Text textAlign="center" mt={4}>
+                  Don't have an account?{' '}
+                  <ChakraLink
+                    as={Link}
+                    to="/signup"
+                    color="brand.500"
+                    fontWeight="semibold"
+                  >
+                    Create Account
+                  </ChakraLink>
+                </Text>
+
                 <ChakraLink
                   as={Link}
-                  to="/signup"
+                  to="/forgot-password"
+                  textAlign="center"
                   color="brand.500"
-                  fontWeight="semibold"
+                  fontWeight="medium"
                 >
-                  Find Love Today
+                  Forgot your password?
                 </ChakraLink>
-              </Text>
-
-              <ChakraLink
-                textAlign="center"
-                color="brand.500"
-                fontWeight="medium"
-              >
-                Forgot your password?
-              </ChakraLink>
-            </Stack>
+              </Stack>
+            </VStack>
           </Box>
 
           {/* Image Section */}
           <Box display={{ base: 'none', md: 'block' }}>
             <VStack spacing={8} align="start">
               <Image
-                src={images.login}
+                src="/assets/couple-illustration.svg"
                 alt="Love Illustration"
                 borderRadius="2xl"
                 shadow="2xl"
