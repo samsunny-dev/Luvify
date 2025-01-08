@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="100" fill="#E2E8F0"/>
+  
+  <!-- Head -->
+  <circle cx="100" cy="80" r="40" fill="#A0AEC0"/>
+  
+  <!-- Body -->
+  <path d="M60 140C60 120 80 100 100 100C120 100 140 120 140 140V160H60V140Z" fill="#A0AEC0"/>
+  
+  <!-- Heart -->
+  <path d="M90 70C85 70 80 75 80 80C80 90 90 95 90 95C90 95 100 90 100 80C100 75 95 70 90 70Z" fill="#E53E3E"/>
+</svg>

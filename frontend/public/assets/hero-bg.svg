@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1440" height="800" viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 0H1440V800H0V0Z" fill="url(#paint0_linear)"/>
+  <g opacity="0.1">
+    <path d="M1440 400C1440 620.914 1260.91 800 1040 800C819.086 800 640 620.914 640 400C640 179.086 819.086 0 1040 0C1260.91 0 1440 179.086 1440 400Z" fill="url(#paint1_radial)"/>
+    <path d="M800 600C800 820.914 620.914 1000 400 1000C179.086 1000 0 820.914 0 600C0 379.086 179.086 200 400 200C620.914 200 800 379.086 800 600Z" fill="url(#paint2_radial)"/>
+  </g>
+  <defs>
+    <linearGradient id="paint0_linear" x1="720" y1="0" x2="720" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE5EC"/>
+      <stop offset="1" stop-color="#F7F7F7"/>
+    </linearGradient>
+    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1040 400) rotate(90) scale(400)">
+      <stop stop-color="#FF0054"/>
+      <stop offset="1" stop-color="#FF0054" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="paint2_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(400 600) rotate(90) scale(400)">
+      <stop stop-color="#5500FF"/>
+      <stop offset="1" stop-color="#5500FF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Heart Shape -->
+  <path d="M20 10C17.2386 10 15 12.2386 15 15C15 21 25 27 25 27C25 27 35 21 35 15C35 12.2386 32.7614 10 30 10C28.4456 10 27.0588 10.7547 26.1667 11.9167C25.4167 12.8333 24.0833 12.8333 23.3333 11.9167C22.4412 10.7547 21.0544 10 19.5 10H20Z" fill="#E53E3E"/>
+  
+  <!-- Text -->
+  <text x="45" y="27" font-family="Arial" font-size="24" font-weight="bold" fill="#2D3748">
+    Luvify
+  </text>
+</svg>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="500" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Elements -->
+  <circle cx="300" cy="250" r="200" fill="url(#paint0_radial)" opacity="0.1"/>
+  
+  <!-- Couple Illustration -->
+  <path d="M200 150C180 150 160 170 160 200C160 260 200 300 200 300C200 300 240 260 240 200C240 170 220 150 200 150Z" fill="#E53E3E"/>
+  <path d="M400 150C380 150 360 170 360 200C360 260 400 300 400 300C400 300 440 260 440 200C440 170 420 150 400 150Z" fill="#E53E3E"/>
+  
+  <!-- Connecting Line -->
+  <path d="M200 300C250 350 350 350 400 300" stroke="#E53E3E" stroke-width="4"/>
+  
+  <!-- Decorative Elements -->
+  <circle cx="150" cy="100" r="10" fill="#ED64A6"/>
+  <circle cx="450" cy="100" r="10" fill="#ED64A6"/>
+  <circle cx="300" cy="400" r="10" fill="#ED64A6"/>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(300 250) rotate(90) scale(200)">
+      <stop offset="0%" stop-color="#E53E3E"/>
+      <stop offset="100%" stop-color="#ED64A6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
