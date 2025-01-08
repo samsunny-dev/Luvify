@@ -1,9 +1,5 @@
 @use 'sass:color';
-<<<<<<< HEAD
-@use 'variables' as *;
-=======
 @use './_variables' as *;
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
 
 // Global Reset
 * {
@@ -49,14 +45,19 @@ button {
   }
 }
 
-input, textarea {
-  padding: $spacer-small;
-  border: 1px solid #ccc;
-  border-radius: $border-radius;
-  width: 100%;
+// Form Elements
+input, textarea, select {
+  font-family: $font-family;
   font-size: $font-size-base;
-}
+  padding: $spacer-small;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  background-color: white;
+  width: 100%;
 
-input:focus, textarea:focus {
-  border-color: $primary-color;
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+  }
 }

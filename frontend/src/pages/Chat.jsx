@@ -1,36 +1,4 @@
-<<<<<<< HEAD
-import { Box, Text, Input, Button, Stack } from "@chakra-ui/react";
-import { useState } from "react";
-
-const Chat = () => {
-  const [message, setMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState([]);
-
-  const handleSendMessage = () => {
-    setChatMessages([...chatMessages, message]);
-    setMessage("");
-  };
-
-  return (
-    <Box p={8}>
-      <Stack spacing={4}>
-        <Box border="1px solid gray" p={4} borderRadius="md">
-          <Text fontSize="lg">Chat Room</Text>
-          <Stack spacing={2}>
-            {chatMessages.map((msg, index) => (
-              <Text key={index}>{msg}</Text>
-            ))}
-          </Stack>
-        </Box>
-        <Input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type your message"
-        />
-        <Button onClick={handleSendMessage} colorScheme="blue">Send</Button>
-      </Stack>
-=======
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -41,299 +9,209 @@ import {
   IconButton,
   Avatar,
   Flex,
-  Divider,
   useColorModeValue,
-  Badge,
   InputGroup,
   InputLeftElement,
-  Icon,
-  Button,
+  useToast,
+  Spinner,
 } from '@chakra-ui/react';
-import { FaSearch, FaSmile, FaPaperPlane, FaImage, FaVideo, FaPhone } from 'react-icons/fa';
+import { FaPhone, FaVideo, FaImage, FaSmile, FaPaperPlane } from 'react-icons/fa';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-
-const ChatMessage = ({ message, isOwn }) => {
-  const messageBg = useColorModeValue(
-    isOwn ? 'brand.500' : 'gray.100',
-    isOwn ? 'brand.500' : 'gray.700'
-  );
-  const messageColor = isOwn ? 'white' : undefined;
-
-  return (
-    <Flex justify={isOwn ? 'flex-end' : 'flex-start'} mb={4}>
-      {!isOwn && (
-        <Avatar
-          size="sm"
-          name={message.sender}
-          src={message.avatar}
-          mr={2}
-        />
-      )}
-      <Box
-        maxW="70%"
-        bg={messageBg}
-        color={messageColor}
-        px={4}
-        py={2}
-        borderRadius="lg"
-        borderBottomLeftRadius={!isOwn ? 0 : undefined}
-        borderBottomRightRadius={isOwn ? 0 : undefined}
-      >
-        <Text>{message.content}</Text>
-        <Text fontSize="xs" opacity={0.8} textAlign={isOwn ? 'right' : 'left'}>
-          {message.time}
-        </Text>
-      </Box>
-    </Flex>
-  );
-};
-
-const ChatSidebar = ({ chats, activeChat, onChatSelect }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-
-  return (
-    <Box
-      w="300px"
-      borderRight="1px"
-      borderColor={borderColor}
-      h="full"
-      overflowY="auto"
-    >
-      <VStack spacing={4} p={4}>
-        <InputGroup>
-          <InputLeftElement pointerEvents="none">
-            <Icon as={FaSearch} color="gray.400" />
-          </InputLeftElement>
-          <Input
-            placeholder="Search messages..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </InputGroup>
-
-        <VStack spacing={2} align="stretch" w="full">
-          {chats.map((chat) => (
-            <Box
-              key={chat.id}
-              p={3}
-              cursor="pointer"
-              borderRadius="md"
-              bg={activeChat?.id === chat.id ? 'brand.50' : undefined}
-              _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
-              onClick={() => onChatSelect(chat)}
-            >
-              <HStack spacing={3}>
-                <Avatar size="md" name={chat.name} src={chat.avatar} />
-                <Box flex={1}>
-                  <HStack justify="space-between">
-                    <Text fontWeight="bold">{chat.name}</Text>
-                    <Text fontSize="xs" color="gray.500">
-                      {chat.lastMessageTime}
-                    </Text>
-                  </HStack>
-                  <Text fontSize="sm" noOfLines={1} color="gray.500">
-                    {chat.lastMessage}
-                  </Text>
-                </Box>
-                {chat.unreadCount > 0 && (
-                  <Badge colorScheme="brand" borderRadius="full">
-                    {chat.unreadCount}
-                  </Badge>
-                )}
-              </HStack>
-            </Box>
-          ))}
-        </VStack>
-      </VStack>
-    </Box>
-  );
-};
+import ChatSidebar from '../components/Chat/ChatSidebar';
+import ChatMessage from '../components/Chat/ChatMessage';
+import { useChat } from '../context/ChatContext';
 
 const Chat = () => {
-  const [activeChat, setActiveChat] = useState(null);
-  const [message, setMessage] = useState('');
+  const {
+    activeChat,
+    messages,
+    loading,
+    error,
+    sendMessage,
+    loadMessages,
+    onlineUsers,
+  } = useChat();
+  
+  const [messageInput, setMessageInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const toast = useToast();
 
-  // Mock data
-  const chats = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      avatar: 'https://bit.ly/sage-adebayo',
-      lastMessage: 'Looking forward to our coffee date! ☕',
-      lastMessageTime: '2m ago',
-      unreadCount: 2,
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      avatar: 'https://bit.ly/ryan-florence',
-      lastMessage: 'Great meeting you yesterday!',
-      lastMessageTime: '1h ago',
-      unreadCount: 0,
-    },
-    {
-      id: 3,
-      name: 'Emily Brown',
-      avatar: 'https://bit.ly/prosper-baba',
-      lastMessage: 'How about dinner this weekend?',
-      lastMessageTime: '3h ago',
-      unreadCount: 1,
-    },
-  ];
+  useEffect(() => {
+    if (activeChat) {
+      loadMessages(activeChat);
+    }
+  }, [activeChat]);
 
-  const messages = [
-    {
-      id: 1,
-      content: 'Hey there! How are you?',
-      sender: 'Sarah Johnson',
-      avatar: 'https://bit.ly/sage-adebayo',
-      time: '10:00 AM',
-      isOwn: false,
-    },
-    {
-      id: 2,
-      content: "I'm good, thanks! How about you?",
-      sender: 'You',
-      time: '10:02 AM',
-      isOwn: true,
-    },
-    {
-      id: 3,
-      content: 'Looking forward to our coffee date! ☕',
-      sender: 'Sarah Johnson',
-      avatar: 'https://bit.ly/sage-adebayo',
-      time: '10:05 AM',
-      isOwn: false,
-    },
-  ];
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Error',
+        description: error,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  }, [error]);
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      // Add message to chat
-      console.log('Sending message:', message);
-      setMessage('');
+  const handleSendMessage = async () => {
+    if (!messageInput.trim() && !selectedFile) return;
+
+    const success = await sendMessage(activeChat, messageInput, selectedFile);
+    if (success) {
+      setMessageInput('');
+      setSelectedFile(null);
     }
   };
 
-  const onEmojiSelect = (emoji) => {
-    setMessage((prev) => prev + emoji.native);
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleEmojiSelect = (emoji) => {
+    setMessageInput((prev) => prev + emoji.native);
     setShowEmojiPicker(false);
   };
 
-  return (
-    <Box minH="100vh" bg={bgColor} pt={20}>
-      <Container maxW="7xl" h="calc(100vh - 80px)">
-        <Flex h="full" borderRadius="xl" overflow="hidden" bg={useColorModeValue('white', 'gray.800')} shadow="xl">
-          <ChatSidebar
-            chats={chats}
-            activeChat={activeChat}
-            onChatSelect={setActiveChat}
-          />
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
 
+  return (
+    <Container maxW="container.xl" h="calc(100vh - 64px)" p={0}>
+      <Flex h="full">
+        <ChatSidebar />
+        
+        <Box flex="1" bg={bgColor}>
           {activeChat ? (
-            <Flex flex={1} direction="column">
+            <VStack h="full" spacing={0}>
               {/* Chat Header */}
-              <HStack p={4} borderBottom="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
+              <HStack
+                w="full"
+                p={4}
+                borderBottom="1px"
+                borderColor={useColorModeValue('gray.200', 'gray.700')}
+                spacing={4}
+              >
                 <Avatar size="sm" name={activeChat.name} src={activeChat.avatar} />
-                <Box flex={1}>
+                <Box flex="1">
                   <Text fontWeight="bold">{activeChat.name}</Text>
                   <Text fontSize="sm" color="gray.500">
-                    Online
+                    {onlineUsers.includes(activeChat._id) ? 'Online' : 'Offline'}
                   </Text>
                 </Box>
-                <HStack>
-                  <IconButton
-                    icon={<FaPhone />}
-                    variant="ghost"
-                    aria-label="Call"
-                  />
-                  <IconButton
-                    icon={<FaVideo />}
-                    variant="ghost"
-                    aria-label="Video call"
-                  />
-                </HStack>
+                <IconButton
+                  variant="ghost"
+                  colorScheme="brand"
+                  icon={<FaPhone />}
+                  aria-label="Voice call"
+                />
+                <IconButton
+                  variant="ghost"
+                  colorScheme="brand"
+                  icon={<FaVideo />}
+                  aria-label="Video call"
+                />
               </HStack>
 
               {/* Messages */}
-              <Box flex={1} overflowY="auto" p={4}>
-                <VStack spacing={4} align="stretch">
-                  {messages.map((msg) => (
-                    <ChatMessage key={msg.id} message={msg} isOwn={msg.isOwn} />
-                  ))}
-                </VStack>
+              <Box
+                flex="1"
+                w="full"
+                overflowY="auto"
+                p={4}
+                css={{
+                  '&::-webkit-scrollbar': { width: '4px' },
+                  '&::-webkit-scrollbar-track': { background: 'transparent' },
+                  '&::-webkit-scrollbar-thumb': { background: '#718096' },
+                }}
+              >
+                {loading ? (
+                  <Flex justify="center" align="center" h="full">
+                    <Spinner size="xl" color="brand.500" />
+                  </Flex>
+                ) : (
+                  messages.map((msg) => (
+                    <ChatMessage
+                      key={msg._id}
+                      message={msg}
+                      isOwn={msg.senderId === localStorage.getItem('userId')}
+                    />
+                  ))
+                )}
               </Box>
 
               {/* Message Input */}
-              <Box p={4} borderTop="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
+              <Box w="full" p={4} bg={useColorModeValue('white', 'gray.800')}>
+                {showEmojiPicker && (
+                  <Box position="absolute" bottom="100%" right={4} zIndex={2}>
+                    <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+                  </Box>
+                )}
                 <HStack spacing={2}>
                   <IconButton
-                    icon={<FaImage />}
                     variant="ghost"
-                    aria-label="Send image"
-                  />
-                  <Input
-                    placeholder="Type a message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  />
-                  <IconButton
+                    colorScheme="brand"
                     icon={<FaSmile />}
-                    variant="ghost"
-                    aria-label="Add emoji"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   />
+                  <Input
+                    type="file"
+                    id="file-input"
+                    hidden
+                    onChange={handleFileSelect}
+                    accept="image/*"
+                  />
                   <IconButton
-                    icon={<FaPaperPlane />}
+                    as="label"
+                    htmlFor="file-input"
+                    variant="ghost"
                     colorScheme="brand"
-                    aria-label="Send message"
+                    icon={<FaImage />}
+                    cursor="pointer"
+                  />
+                  <Input
+                    flex="1"
+                    placeholder="Type a message..."
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                  />
+                  <IconButton
+                    colorScheme="brand"
+                    icon={<FaPaperPlane />}
                     onClick={handleSendMessage}
                   />
                 </HStack>
-                {showEmojiPicker && (
-                  <Box position="absolute" bottom="100%" right={0} zIndex={1}>
-                    <Picker
-                      data={data}
-                      onEmojiSelect={onEmojiSelect}
-                      theme={useColorModeValue('light', 'dark')}
-                    />
-                  </Box>
+                {selectedFile && (
+                  <Text fontSize="sm" mt={2}>
+                    Selected file: {selectedFile.name}
+                  </Text>
                 )}
               </Box>
-            </Flex>
+            </VStack>
           ) : (
             <Flex
-              flex={1}
               justify="center"
               align="center"
-              direction="column"
-              p={8}
-              textAlign="center"
+              h="full"
+              color={useColorModeValue('gray.500', 'gray.400')}
             >
-              <Text fontSize="xl" fontWeight="bold" mb={4}>
-                Welcome to Messages
-              </Text>
-              <Text color="gray.500">
-                Select a conversation or start a new one
-              </Text>
-              <Button
-                mt={4}
-                colorScheme="brand"
-                leftIcon={<FaPaperPlane />}
-              >
-                New Message
-              </Button>
+              <Text fontSize="lg">Select a chat to start messaging</Text>
             </Flex>
           )}
-        </Flex>
-      </Container>
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
-    </Box>
+        </Box>
+      </Flex>
+    </Container>
   );
 };
 

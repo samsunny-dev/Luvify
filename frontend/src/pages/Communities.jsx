@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-<<<<<<< HEAD
-import { Box, Container, Heading, Text, Button, Stack } from "@chakra-ui/react";
-=======
 import {
   Box,
   Container,
@@ -21,241 +18,367 @@ import {
   Select,
   IconButton,
   useColorModeValue,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Textarea,
+  Badge,
+  Avatar,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
-import { FaSearch, FaUsers, FaMapMarkerAlt, FaHeart } from "react-icons/fa";
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
-import { communityService } from "../services/communityService";
+import {
+  FaSearch,
+  FaUsers,
+  FaMapMarkerAlt,
+  FaHeart,
+  FaPlus,
+  FaEdit,
+  FaComment,
+  FaShare,
+} from "react-icons/fa";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Communities = () => {
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-<<<<<<< HEAD
-=======
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [selectedCommunity, setSelectedCommunity] = useState(null);
+  const [newCommunity, setNewCommunity] = useState({
+    name: "",
+    description: "",
+    tags: [],
+    location: "",
+    image: null,
+  });
+  
   const toast = useToast();
+  const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure();
   
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
 
   useEffect(() => {
-    const fetchCommunities = async () => {
-      try {
-        const data = await communityService.getAllCommunities();
-<<<<<<< HEAD
-        setCommunities(data);
-=======
-        // Simulated data - replace with actual API response
-        const mockData = [
-          {
-            _id: "1",
-            name: "Outdoor Adventures",
-            description: "Connect with fellow adventure seekers and explore the great outdoors together!",
-            members: 1234,
-            location: "Global",
-            image: "/community1.jpg",
-            tags: ["Hiking", "Camping", "Nature"],
-            isJoined: false,
-          },
-          {
-            _id: "2",
-            name: "Coffee Lovers",
-            description: "For those who appreciate the perfect brew and great conversations.",
-            members: 856,
-            location: "New York",
-            image: "/community2.jpg",
-            tags: ["Coffee", "Cafes", "Social"],
-            isJoined: true,
-          },
-          // Add more mock communities
-        ];
-        setCommunities(mockData);
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
     fetchCommunities();
-  }, []);
+  }, [filter]);
 
-<<<<<<< HEAD
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text color="red.500">Error: {error}</Text>;
+  const fetchCommunities = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/communities${
+          filter !== "all" ? `?filter=${filter}` : ""
+        }`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setCommunities(response.data);
+    } catch (error) {
+      toast({
+        title: "Error fetching communities",
+        description: error.response?.data?.message || "Something went wrong",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return (
-    <Container maxW="container.xl" py={10}>
-      <Heading mb={6}>Communities</Heading>
-      <Stack spacing={4}>
-        {communities.map((community) => (
-          <Box key={community._id} p={4} borderWidth={1} borderRadius="lg">
-            <Heading size="md">{community.name}</Heading>
-            <Text mt={2}>{community.description}</Text>
-            <Button mt={2} colorScheme="teal">
-              Join Community
-            </Button>
-          </Box>
-        ))}
-      </Stack>
-    </Container>
-=======
   const handleJoinCommunity = async (communityId) => {
     try {
-      // Toggle join status
-      setCommunities(communities.map(comm => 
-        comm._id === communityId 
-          ? { ...comm, isJoined: !comm.isJoined }
-          : comm
-      ));
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/communities/${communityId}/join`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      // Update local state
+      setCommunities((prev) =>
+        prev.map((comm) =>
+          comm._id === communityId ? { ...comm, isJoined: true } : comm
+        )
+      );
 
       toast({
-        title: "Success!",
-        description: "Community membership updated",
+        title: "Joined community!",
         status: "success",
         duration: 2000,
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update membership",
+        title: "Error joining community",
+        description: error.response?.data?.message,
         status: "error",
-        duration: 2000,
+        duration: 3000,
       });
     }
   };
 
-  const filteredCommunities = communities.filter(community => {
-    const matchesSearch = community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         community.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filter === "all" || 
-                         (filter === "joined" && community.isJoined) ||
-                         (filter === "available" && !community.isJoined);
-    return matchesSearch && matchesFilter;
-  });
+  const handleCreateCommunity = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      Object.keys(newCommunity).forEach((key) => {
+        if (newCommunity[key]) {
+          formData.append(key, newCommunity[key]);
+        }
+      });
 
-  if (loading) return (
-    <Container maxW="container.xl" centerContent py={20}>
-      <Text>Loading communities...</Text>
-    </Container>
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/communities`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setCommunities((prev) => [...prev, response.data]);
+      onCreateClose();
+      toast({
+        title: "Community created!",
+        status: "success",
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error creating community",
+        description: error.response?.data?.message,
+        status: "error",
+        duration: 3000,
+      });
+    }
+  };
+
+  const filteredCommunities = communities.filter(
+    (community) =>
+      community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      community.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      community.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      )
   );
 
-  if (error) return (
-    <Container maxW="container.xl" centerContent py={20}>
-      <Text color="red.500">Error: {error}</Text>
-    </Container>
+  const CommunityCard = ({ community }) => (
+    <Box
+      bg={bgColor}
+      borderWidth="1px"
+      borderColor={borderColor}
+      borderRadius="lg"
+      overflow="hidden"
+      transition="transform 0.2s"
+      _hover={{ transform: "translateY(-4px)" }}
+    >
+      <Image
+        src={community.image}
+        alt={community.name}
+        h="200px"
+        w="full"
+        objectFit="cover"
+      />
+      <Box p={6}>
+        <Flex justify="space-between" align="center" mb={4}>
+          <Heading size="md">{community.name}</Heading>
+          <HStack>
+            <FaUsers />
+            <Text>{community.members} members</Text>
+          </HStack>
+        </Flex>
+        <Text noOfLines={2} mb={4}>
+          {community.description}
+        </Text>
+        <HStack spacing={2} mb={4}>
+          {community.tags.map((tag, index) => (
+            <Tag
+              key={index}
+              colorScheme="brand"
+              size="sm"
+            >
+              {tag}
+            </Tag>
+          ))}
+        </HStack>
+        <Flex justify="space-between" align="center">
+          <HStack>
+            <FaMapMarkerAlt />
+            <Text fontSize="sm">{community.location}</Text>
+          </HStack>
+          <Button
+            colorScheme={community.isJoined ? "gray" : "brand"}
+            onClick={() =>
+              community.isJoined
+                ? null
+                : handleJoinCommunity(community._id)
+            }
+          >
+            {community.isJoined ? "Joined" : "Join"}
+          </Button>
+        </Flex>
+      </Box>
+    </Box>
+  );
+
+  const CreateCommunityModal = () => (
+    <Modal isOpen={isCreateOpen} onClose={onCreateClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Create New Community</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <form onSubmit={handleCreateCommunity}>
+            <VStack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>Community Name</FormLabel>
+                <Input
+                  value={newCommunity.name}
+                  onChange={(e) =>
+                    setNewCommunity({ ...newCommunity, name: e.target.value })
+                  }
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Description</FormLabel>
+                <Textarea
+                  value={newCommunity.description}
+                  onChange={(e) =>
+                    setNewCommunity({
+                      ...newCommunity,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Location</FormLabel>
+                <Input
+                  value={newCommunity.location}
+                  onChange={(e) =>
+                    setNewCommunity({
+                      ...newCommunity,
+                      location: e.target.value,
+                    })
+                  }
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Community Image</FormLabel>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setNewCommunity({
+                      ...newCommunity,
+                      image: e.target.files[0],
+                    })
+                  }
+                />
+              </FormControl>
+
+              <Button type="submit" colorScheme="brand" w="full">
+                Create Community
+              </Button>
+            </VStack>
+          </form>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 
   return (
-    <Box bg="gray.50" minH="100vh" py={8}>
-      <Container maxW="container.xl">
-        <VStack spacing={8} align="stretch">
-          <Box textAlign="center">
-            <Heading size="xl" mb={2}>Find Your Tribe</Heading>
-            <Text color="gray.600">
-              Join communities that match your interests and connect with like-minded people
-            </Text>
-          </Box>
+    <Container maxW="container.xl" py={8}>
+      <Flex justify="space-between" align="center" mb={8}>
+        <Heading>Communities</Heading>
+        <Button
+          leftIcon={<FaPlus />}
+          colorScheme="brand"
+          onClick={onCreateOpen}
+        >
+          Create Community
+        </Button>
+      </Flex>
 
-          {/* Search and Filter */}
-          <Flex direction={{ base: "column", md: "row" }} gap={4}>
-            <InputGroup flex={1}>
-              <InputLeftElement pointerEvents="none">
-                <FaSearch color="gray.300" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search communities..."
-                bg={bgColor}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </InputGroup>
-            <Select
-              w={{ base: "full", md: "200px" }}
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              bg={bgColor}
+      <Flex gap={4} mb={8} wrap="wrap">
+        <InputGroup maxW="md">
+          <InputLeftElement>
+            <FaSearch />
+          </InputLeftElement>
+          <Input
+            placeholder="Search communities..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </InputGroup>
+
+        <Select
+          maxW="200px"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option value="all">All Communities</option>
+          <option value="joined">My Communities</option>
+          <option value="trending">Trending</option>
+          <option value="new">Newest</option>
+        </Select>
+      </Flex>
+
+      {loading ? (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Box
+              key={i}
+              borderWidth="1px"
+              borderRadius="lg"
+              overflow="hidden"
             >
-              <option value="all">All Communities</option>
-              <option value="joined">Joined</option>
-              <option value="available">Available</option>
-            </Select>
-          </Flex>
-
-          {/* Communities Grid */}
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-            {filteredCommunities.map((community) => (
-              <Box
-                key={community._id}
-                bg={bgColor}
-                borderRadius="xl"
-                overflow="hidden"
-                borderWidth="1px"
-                borderColor={borderColor}
-                transition="transform 0.2s"
-                _hover={{ transform: "translateY(-4px)" }}
-              >
-                <Image
-                  src={community.image}
-                  alt={community.name}
-                  h="200px"
-                  w="100%"
-                  objectFit="cover"
-                  fallbackSrc="https://via.placeholder.com/400x200"
-                />
-                
-                <Box p={6}>
-                  <VStack align="stretch" spacing={4}>
-                    <Heading size="md">{community.name}</Heading>
-                    <Text color="gray.600" noOfLines={2}>
-                      {community.description}
-                    </Text>
-                    
-                    <HStack spacing={4}>
-                      <HStack>
-                        <FaUsers />
-                        <Text>{community.members} members</Text>
-                      </HStack>
-                      <HStack>
-                        <FaMapMarkerAlt />
-                        <Text>{community.location}</Text>
-                      </HStack>
-                    </HStack>
-
-                    <Box>
-                      {community.tags.map((tag, index) => (
-                        <Tag
-                          key={index}
-                          mr={2}
-                          mb={2}
-                          colorScheme="purple"
-                          variant="subtle"
-                        >
-                          {tag}
-                        </Tag>
-                      ))}
-                    </Box>
-
-                    <Button
-                      colorScheme={community.isJoined ? "gray" : "purple"}
-                      variant={community.isJoined ? "outline" : "solid"}
-                      onClick={() => handleJoinCommunity(community._id)}
-                      leftIcon={<FaHeart />}
-                    >
-                      {community.isJoined ? "Leave Community" : "Join Community"}
-                    </Button>
-                  </VStack>
-                </Box>
+              <Skeleton height="200px" />
+              <Box p={6}>
+                <SkeletonText mt="4" noOfLines={4} spacing="4" />
               </Box>
-            ))}
-          </SimpleGrid>
-        </VStack>
-      </Container>
-    </Box>
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
+            </Box>
+          ))}
+        </SimpleGrid>
+      ) : filteredCommunities.length === 0 ? (
+        <Box textAlign="center" py={10}>
+          <Heading size="md">No communities found</Heading>
+          <Text mt={2}>Try adjusting your search or create a new community</Text>
+        </Box>
+      ) : (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+          {filteredCommunities.map((community) => (
+            <CommunityCard key={community._id} community={community} />
+          ))}
+        </SimpleGrid>
+      )}
+
+      <CreateCommunityModal />
+    </Container>
   );
 };
 

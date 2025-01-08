@@ -1,127 +1,4 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
-import { 
-  Box, 
-  Container,
-  Heading,
-  FormControl, 
-  FormLabel, 
-  Input, 
-  Button, 
-  Stack,
-  useToast
-} from "@chakra-ui/react";
-import { profileService } from "../services/profileService";
-
-const Profile = () => {
-  const [profile, setProfile] = useState({
-    name: '',
-    email: '',
-    bio: '',
-    location: ''
-  });
-  const [loading, setLoading] = useState(true);
-  const toast = useToast();
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const data = await profileService.getProfile();
-      setProfile(data);
-      setLoading(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load profile",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await profileService.updateProfile(profile);
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
-
-  if (loading) return <Box>Loading...</Box>;
-
-  return (
-    <Container maxW="container.md" py={10}>
-      <Heading mb={6}>Profile</Heading>
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={4}>
-          <FormControl>
-            <FormLabel>Name</FormLabel>
-            <Input
-              name="name"
-              value={profile.name}
-              onChange={handleChange}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Email</FormLabel>
-            <Input
-              name="email"
-              type="email"
-              value={profile.email}
-              onChange={handleChange}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Bio</FormLabel>
-            <Input
-              name="bio"
-              value={profile.bio}
-              onChange={handleChange}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Location</FormLabel>
-            <Input
-              name="location"
-              value={profile.location}
-              onChange={handleChange}
-            />
-          </FormControl>
-          <Button type="submit" colorScheme="teal">
-            Save Changes
-          </Button>
-        </Stack>
-      </form>
-    </Container>
-=======
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -159,61 +36,219 @@ import {
   StatLabel,
   StatNumber,
   Badge,
+  useToast,
+  Spinner,
+  Center,
 } from '@chakra-ui/react';
-import { FaCamera, FaInstagram, FaSpotify, FaCog, FaHeart, FaEye, FaStar } from 'react-icons/fa';
+import {
+  FaCamera,
+  FaInstagram,
+  FaSpotify,
+  FaCog,
+  FaHeart,
+  FaEye,
+  FaStar,
+  FaPlus,
+  FaTrash,
+} from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import Navbar from '../components/navbar';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
 const Profile = () => {
-  const [userProfile, setUserProfile] = useState({
-    name: 'Sarah Anderson',
-    age: 24,
-    bio: 'Adventure seeker and coffee enthusiast. Looking for someone to explore life with.',
-    location: 'New York City',
-    occupation: 'Professional Photographer',
-    interests: ['Photography', 'Travel', 'Coffee', 'Hiking', 'Art', 'Music'],
-    photos: [
-      '/profile-1.jpg',
-      '/profile-2.jpg',
-      '/profile-3.jpg',
-      '/profile-4.jpg',
-      '/profile-5.jpg',
-      '/profile-6.jpg',
-    ],
-    stats: {
-      matches: 156,
-      likes: 423,
-      views: 1289,
-    },
-    spotify: {
-      topArtists: ['The Weeknd', 'Taylor Swift', 'Ed Sheeran'],
-      favoriteGenres: ['Pop', 'R&B', 'Indie'],
-    },
-    instagram: {
-      connected: true,
-      followers: '2.5K',
-    },
-  });
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [editedProfile, setEditedProfile] = useState(null);
+  const [interests, setInterests] = useState([]);
+  const [newInterest, setNewInterest] = useState('');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+  const navigate = useNavigate();
+  
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
 
-  const handlePhotoUpload = (e) => {
-    // Handle photo upload logic
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/profile`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setProfile(response.data);
+      setEditedProfile(response.data);
+      setInterests(response.data.interests || []);
+    } catch (error) {
+      toast({
+        title: 'Error fetching profile',
+        description: error.response?.data?.message || 'Something went wrong',
+        status: 'error',
+        duration: 3000,
+      });
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleProfileUpdate = (e) => {
-    e.preventDefault();
-    // Handle profile update logic
+  const handlePhotoUpload = async (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('index', index);
+
+    try {
+      setUploadingPhoto(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/profile/photos`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      setProfile((prev) => ({
+        ...prev,
+        photos: response.data.photos,
+      }));
+      toast({
+        title: 'Photo uploaded successfully',
+        status: 'success',
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error uploading photo',
+        description: error.response?.data?.message,
+        status: 'error',
+        duration: 3000,
+      });
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      setUpdating(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/profile`,
+        {
+          ...editedProfile,
+          interests,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setProfile(response.data);
+      toast({
+        title: 'Profile updated successfully',
+        status: 'success',
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error updating profile',
+        description: error.response?.data?.message,
+        status: 'error',
+        duration: 3000,
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedProfile((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAddInterest = () => {
+    if (!newInterest.trim()) return;
+    if (interests.includes(newInterest.trim())) {
+      toast({
+        title: 'Interest already exists',
+        status: 'warning',
+        duration: 2000,
+      });
+      return;
+    }
+    setInterests((prev) => [...prev, newInterest.trim()]);
+    setNewInterest('');
+  };
+
+  const handleRemoveInterest = (interest) => {
+    setInterests((prev) => prev.filter((i) => i !== interest));
+  };
+
+  const handleConnectService = async (service) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/profile/connect/${service}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toast({
+        title: `Connected to ${service}`,
+        status: 'success',
+        duration: 2000,
+      });
+      fetchProfile();
+    } catch (error) {
+      toast({
+        title: `Error connecting to ${service}`,
+        description: error.response?.data?.message,
+        status: 'error',
+        duration: 3000,
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Center minH="100vh">
+        <Spinner size="xl" color="brand.500" />
+      </Center>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <Center minH="100vh">
+        <Text>No profile found. Please log in.</Text>
+      </Center>
+    );
+  }
 
   return (
     <Box minH="100vh" bg={bgColor}>
-      <Navbar />
-
       <Container maxW="7xl" py={{ base: 20, md: 28 }}>
         <Grid templateColumns={{ base: '1fr', lg: '350px 1fr' }} gap={8}>
           {/* Left Sidebar */}
@@ -222,21 +257,23 @@ const Profile = () => {
               {/* Profile Photo */}
               <Box position="relative" w="full">
                 <Image
-                  src={userProfile.photos[0]}
-                  alt={userProfile.name}
+                  src={profile.photos[0] || '/default-avatar.jpg'}
+                  alt={profile.name}
                   w="full"
                   h="350px"
                   objectFit="cover"
                   rounded="2xl"
+                  fallbackSrc="/default-avatar.jpg"
                 />
                 <IconButton
-                  icon={<FaCamera />}
+                  icon={uploadingPhoto ? <Spinner /> : <FaCamera />}
                   position="absolute"
                   bottom={4}
                   right={4}
                   colorScheme="brand"
                   rounded="full"
                   onClick={onOpen}
+                  isDisabled={uploadingPhoto}
                   aria-label="Upload photo"
                 />
               </Box>
@@ -245,15 +282,15 @@ const Profile = () => {
               <Grid templateColumns="repeat(3, 1fr)" gap={4} w="full">
                 <Stat textAlign="center" p={4} bg={cardBg} rounded="xl">
                   <StatLabel>Matches</StatLabel>
-                  <StatNumber color="brand.500">{userProfile.stats.matches}</StatNumber>
+                  <StatNumber color="brand.500">{profile.stats?.matches || 0}</StatNumber>
                 </Stat>
                 <Stat textAlign="center" p={4} bg={cardBg} rounded="xl">
                   <StatLabel>Likes</StatLabel>
-                  <StatNumber color="brand.500">{userProfile.stats.likes}</StatNumber>
+                  <StatNumber color="brand.500">{profile.stats?.likes || 0}</StatNumber>
                 </Stat>
                 <Stat textAlign="center" p={4} bg={cardBg} rounded="xl">
                   <StatLabel>Views</StatLabel>
-                  <StatNumber color="brand.500">{userProfile.stats.views}</StatNumber>
+                  <StatNumber color="brand.500">{profile.stats?.views || 0}</StatNumber>
                 </Stat>
               </Grid>
 
@@ -263,23 +300,26 @@ const Profile = () => {
                   leftIcon={<FaInstagram />}
                   w="full"
                   colorScheme="pink"
-                  variant="outline"
+                  variant={profile.instagram?.connected ? 'solid' : 'outline'}
+                  onClick={() => handleConnectService('instagram')}
                 >
-                  Connect Instagram
+                  {profile.instagram?.connected ? 'Instagram Connected' : 'Connect Instagram'}
                 </Button>
                 <Button
                   leftIcon={<FaSpotify />}
                   w="full"
                   colorScheme="green"
-                  variant="outline"
+                  variant={profile.spotify?.connected ? 'solid' : 'outline'}
+                  onClick={() => handleConnectService('spotify')}
                 >
-                  Connect Spotify
+                  {profile.spotify?.connected ? 'Spotify Connected' : 'Connect Spotify'}
                 </Button>
                 <Button
                   leftIcon={<FaCog />}
                   w="full"
                   colorScheme="gray"
                   variant="outline"
+                  onClick={() => navigate('/settings')}
                 >
                   Settings
                 </Button>
@@ -304,13 +344,20 @@ const Profile = () => {
                     <VStack spacing={6} align="stretch">
                       <FormControl>
                         <FormLabel>Name</FormLabel>
-                        <Input defaultValue={userProfile.name} size="lg" />
+                        <Input
+                          name="name"
+                          value={editedProfile.name || ''}
+                          onChange={handleInputChange}
+                          size="lg"
+                        />
                       </FormControl>
 
                       <FormControl>
                         <FormLabel>Bio</FormLabel>
                         <Textarea
-                          defaultValue={userProfile.bio}
+                          name="bio"
+                          value={editedProfile.bio || ''}
+                          onChange={handleInputChange}
                           size="lg"
                           rows={4}
                         />
@@ -319,16 +366,31 @@ const Profile = () => {
                       <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                         <FormControl>
                           <FormLabel>Location</FormLabel>
-                          <Input defaultValue={userProfile.location} size="lg" />
+                          <Input
+                            name="location"
+                            value={editedProfile.location || ''}
+                            onChange={handleInputChange}
+                            size="lg"
+                          />
                         </FormControl>
 
                         <FormControl>
                           <FormLabel>Occupation</FormLabel>
-                          <Input defaultValue={userProfile.occupation} size="lg" />
+                          <Input
+                            name="occupation"
+                            value={editedProfile.occupation || ''}
+                            onChange={handleInputChange}
+                            size="lg"
+                          />
                         </FormControl>
                       </Grid>
 
-                      <Button colorScheme="brand" size="lg" onClick={handleProfileUpdate}>
+                      <Button
+                        colorScheme="brand"
+                        size="lg"
+                        onClick={handleProfileUpdate}
+                        isLoading={updating}
+                      >
                         Save Changes
                       </Button>
                     </VStack>
@@ -337,7 +399,7 @@ const Profile = () => {
                   {/* Photos Tab */}
                   <TabPanel>
                     <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                      {userProfile.photos.map((photo, index) => (
+                      {profile.photos.map((photo, index) => (
                         <Box
                           key={index}
                           position="relative"
@@ -345,22 +407,31 @@ const Profile = () => {
                           whileHover={{ scale: 1.05 }}
                         >
                           <Image
-                            src={photo}
+                            src={photo || '/default-photo.jpg'}
                             alt={`Photo ${index + 1}`}
                             w="full"
                             h="200px"
                             objectFit="cover"
                             rounded="xl"
+                            fallbackSrc="/default-photo.jpg"
+                          />
+                          <input
+                            type="file"
+                            id={`photo-upload-${index}`}
+                            style={{ display: 'none' }}
+                            accept="image/*"
+                            onChange={(e) => handlePhotoUpload(e, index)}
                           />
                           <IconButton
-                            icon={<FaCamera />}
+                            icon={uploadingPhoto ? <Spinner /> : <FaCamera />}
                             position="absolute"
                             top={2}
                             right={2}
                             size="sm"
                             colorScheme="brand"
                             rounded="full"
-                            onClick={() => handlePhotoUpload(index)}
+                            onClick={() => document.getElementById(`photo-upload-${index}`).click()}
+                            isDisabled={uploadingPhoto}
                             aria-label="Change photo"
                           />
                         </Box>
@@ -371,8 +442,27 @@ const Profile = () => {
                   {/* Interests Tab */}
                   <TabPanel>
                     <VStack spacing={6} align="stretch">
+                      <HStack>
+                        <Input
+                          placeholder="Add new interest..."
+                          value={newInterest}
+                          onChange={(e) => setNewInterest(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              handleAddInterest();
+                            }
+                          }}
+                        />
+                        <IconButton
+                          icon={<FaPlus />}
+                          colorScheme="brand"
+                          onClick={handleAddInterest}
+                          aria-label="Add interest"
+                        />
+                      </HStack>
+
                       <Wrap spacing={4}>
-                        {userProfile.interests.map((interest, index) => (
+                        {interests.map((interest, index) => (
                           <WrapItem key={index}>
                             <Tag
                               size="lg"
@@ -382,62 +472,66 @@ const Profile = () => {
                               py={2}
                             >
                               {interest}
+                              <IconButton
+                                icon={<FaTrash />}
+                                size="xs"
+                                ml={2}
+                                colorScheme="red"
+                                variant="ghost"
+                                onClick={() => handleRemoveInterest(interest)}
+                                aria-label="Remove interest"
+                              />
                             </Tag>
                           </WrapItem>
                         ))}
                       </Wrap>
-                      <Button
-                        colorScheme="brand"
-                        variant="outline"
-                        leftIcon={<FaHeart />}
-                      >
-                        Add More Interests
-                      </Button>
                     </VStack>
                   </TabPanel>
 
                   {/* Music Tab */}
                   <TabPanel>
                     <VStack spacing={8} align="stretch">
-                      <Box>
-                        <Text fontSize="lg" fontWeight="bold" mb={4}>
-                          Top Artists
-                        </Text>
-                        <VStack align="stretch">
-                          {userProfile.spotify.topArtists.map((artist, index) => (
-                            <HStack
-                              key={index}
-                              p={4}
-                              bg={useColorModeValue('gray.50', 'gray.700')}
-                              rounded="xl"
-                            >
-                              <Text flex={1}>{artist}</Text>
-                              <Badge colorScheme="green">Spotify</Badge>
-                            </HStack>
-                          ))}
+                      {profile.spotify?.connected ? (
+                        <>
+                          <Box>
+                            <Text fontWeight="bold" mb={4}>
+                              Top Artists
+                            </Text>
+                            <VStack align="stretch" spacing={2}>
+                              {profile.spotify?.topArtists?.map((artist, index) => (
+                                <HStack key={index} p={2} bg={bgColor} rounded="md">
+                                  <Text>{artist}</Text>
+                                </HStack>
+                              ))}
+                            </VStack>
+                          </Box>
+                          <Box>
+                            <Text fontWeight="bold" mb={4}>
+                              Favorite Genres
+                            </Text>
+                            <Wrap>
+                              {profile.spotify?.favoriteGenres?.map((genre, index) => (
+                                <WrapItem key={index}>
+                                  <Tag colorScheme="green" size="lg">
+                                    {genre}
+                                  </Tag>
+                                </WrapItem>
+                              ))}
+                            </Wrap>
+                          </Box>
+                        </>
+                      ) : (
+                        <VStack spacing={4}>
+                          <Text>Connect your Spotify account to share your music taste</Text>
+                          <Button
+                            leftIcon={<FaSpotify />}
+                            colorScheme="green"
+                            onClick={() => handleConnectService('spotify')}
+                          >
+                            Connect Spotify
+                          </Button>
                         </VStack>
-                      </Box>
-
-                      <Box>
-                        <Text fontSize="lg" fontWeight="bold" mb={4}>
-                          Favorite Genres
-                        </Text>
-                        <Wrap>
-                          {userProfile.spotify.favoriteGenres.map((genre, index) => (
-                            <WrapItem key={index}>
-                              <Tag
-                                size="lg"
-                                colorScheme="green"
-                                borderRadius="full"
-                                px={6}
-                                py={2}
-                              >
-                                {genre}
-                              </Tag>
-                            </WrapItem>
-                          ))}
-                        </Wrap>
-                      </Box>
+                      )}
                     </VStack>
                   </TabPanel>
                 </TabPanels>
@@ -446,39 +540,7 @@ const Profile = () => {
           </GridItem>
         </Grid>
       </Container>
-
-      {/* Photo Upload Modal */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Upload Photo</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-              style={{ display: 'none' }}
-              id="photo-upload"
-            />
-            <Button
-              as="label"
-              htmlFor="photo-upload"
-              colorScheme="brand"
-              w="full"
-              h="200px"
-              cursor="pointer"
-            >
-              <VStack spacing={4}>
-                <FaCamera size={32} />
-                <Text>Click to upload photo</Text>
-              </VStack>
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </Box>
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
   );
 };
 

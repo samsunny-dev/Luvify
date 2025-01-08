@@ -1,298 +1,457 @@
-<<<<<<< HEAD
-import React from 'react';
-import { Box, Heading, VStack, SimpleGrid, Text, Button } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-
-const MotionBox = motion(Box);
-
-const events = [
-  { id: 1, name: 'Movie Night', date: '2024-12-01', description: 'Watch a movie with friends.' },
-  { id: 2, name: 'Cooking Workshop', date: '2024-12-05', description: 'Learn to cook exotic dishes.' },
-  { id: 3, name: 'Hiking Trip', date: '2024-12-10', description: 'Join us for an adventure.' },
-];
-
-const Events = () => (
-  <>
-    <Navbar />
-    <Box as="main" py={10} px={5}>
-      <Heading textAlign="center" color="pink.500" mb={8}>
-        Upcoming Events
-      </Heading>
-      <SimpleGrid columns={[1, 2, 3]} spacing={6}>
-        {events.map((event) => (
-          <MotionBox
-            key={event.id}
-            bg="blue.100"
-            p={5}
-            borderRadius="md"
-            shadow="sm"
-            whileHover={{ scale: 1.05, translateY: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            <VStack spacing={3}>
-              <Heading size="md">{event.name}</Heading>
-              <Text fontSize="sm" color="blue.600">
-                {event.date}
-              </Text>
-              <Text>{event.description}</Text>
-              <Button size="sm" colorScheme="blue">
-                RSVP
-              </Button>
-            </VStack>
-          </MotionBox>
-        ))}
-      </SimpleGrid>
-    </Box>
-    <Footer />
-  </>
-);
-=======
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
   Heading,
-  SimpleGrid,
-  Image,
   Text,
   Button,
+  SimpleGrid,
+  Image,
   VStack,
   HStack,
   Tag,
-  Avatar,
-  AvatarGroup,
-  useColorModeValue,
-  Icon,
-  Badge,
+  useToast,
   Input,
   InputGroup,
   InputLeftElement,
+  Select,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Textarea,
+  IconButton,
   Flex,
+  Spacer,
+  useColorModeValue,
+  Badge,
+  Skeleton,
+  SkeletonText,
+  Avatar,
+  AvatarGroup,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { FaMapMarkerAlt, FaCalendar, FaUsers, FaSearch, FaFilter } from 'react-icons/fa';
+import {
+  FaSearch,
+  FaCalendar,
+  FaMapMarkerAlt,
+  FaClock,
+  FaUsers,
+  FaPlus,
+  FaHeart,
+  FaShare,
+} from 'react-icons/fa';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
-const MotionBox = motion(Box);
+const Events = () => {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('upcoming');
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    location: '',
+    image: null,
+    maxParticipants: '',
+    category: '',
+  });
 
-const EventCard = ({ event }) => {
-  const cardBg = useColorModeValue('white', 'gray.800');
-  
-  return (
-    <MotionBox
-      bg={cardBg}
-      rounded="xl"
+  const toast = useToast();
+  const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+
+  useEffect(() => {
+    fetchEvents();
+  }, [filter]);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/events?filter=${filter}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setEvents(response.data);
+    } catch (error) {
+      toast({
+        title: 'Error fetching events',
+        description: error.response?.data?.message || 'Something went wrong',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      Object.keys(newEvent).forEach((key) => {
+        if (newEvent[key]) {
+          formData.append(key, newEvent[key]);
+        }
+      });
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/events`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      setEvents((prev) => [...prev, response.data]);
+      onClose();
+      toast({
+        title: 'Event created!',
+        status: 'success',
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error creating event',
+        description: error.response?.data?.message,
+        status: 'error',
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleJoinEvent = async (eventId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/events/${eventId}/join`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Update local state
+      setEvents((prev) =>
+        prev.map((event) =>
+          event._id === eventId
+            ? {
+                ...event,
+                isJoined: true,
+                participants: [...event.participants, { _id: 'currentUser' }],
+              }
+            : event
+        )
+      );
+
+      toast({
+        title: 'Joined event!',
+        status: 'success',
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error joining event',
+        description: error.response?.data?.message,
+        status: 'error',
+        duration: 3000,
+      });
+    }
+  };
+
+  const filteredEvents = events.filter(
+    (event) =>
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const EventCard = ({ event }) => (
+    <Box
+      bg={bgColor}
+      borderWidth="1px"
+      borderColor={borderColor}
+      borderRadius="lg"
       overflow="hidden"
-      shadow="lg"
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
+      transition="transform 0.2s"
+      _hover={{ transform: 'translateY(-4px)' }}
     >
-      <Box position="relative">
-        <Image
-          src={event.image}
-          alt={event.title}
-          h="200px"
-          w="100%"
-          objectFit="cover"
-        />
-        <Badge
-          position="absolute"
-          top={4}
-          right={4}
-          colorScheme={event.category.color}
-          px={3}
-          py={1}
-          borderRadius="full"
-        >
-          {event.category.name}
-        </Badge>
-      </Box>
-
+      <Image
+        src={event.image}
+        alt={event.title}
+        h="200px"
+        w="full"
+        objectFit="cover"
+      />
       <Box p={6}>
-        <VStack align="start" spacing={4}>
+        <VStack align="stretch" spacing={4}>
           <Heading size="md">{event.title}</Heading>
-          
-          <HStack color="gray.500" spacing={4}>
-            <HStack>
-              <Icon as={FaCalendar} />
-              <Text fontSize="sm">{event.date}</Text>
-            </HStack>
-            <HStack>
-              <Icon as={FaMapMarkerAlt} />
-              <Text fontSize="sm">{event.location}</Text>
-            </HStack>
-          </HStack>
-
           <Text noOfLines={2} color="gray.600">
             {event.description}
           </Text>
 
-          <HStack justify="space-between" w="100%">
+          <HStack>
+            <Icon as={FaCalendar} color="brand.500" />
+            <Text>
+              {format(new Date(event.date), 'MMM dd, yyyy')} at {event.time}
+            </Text>
+          </HStack>
+
+          <HStack>
+            <Icon as={FaMapMarkerAlt} color="brand.500" />
+            <Text>{event.location}</Text>
+          </HStack>
+
+          <HStack>
+            <Icon as={FaUsers} color="brand.500" />
+            <Text>
+              {event.participants.length}/{event.maxParticipants} participants
+            </Text>
+          </HStack>
+
+          <Badge colorScheme="brand" alignSelf="start">
+            {event.category}
+          </Badge>
+
+          <Flex align="center" justify="space-between">
             <AvatarGroup size="sm" max={3}>
-              {event.attendees.map((attendee, index) => (
+              {event.participants.map((participant) => (
                 <Avatar
-                  key={index}
-                  name={attendee.name}
-                  src={attendee.image}
+                  key={participant._id}
+                  name={participant.name}
+                  src={participant.avatar}
                 />
               ))}
             </AvatarGroup>
-            <Text fontSize="sm" color="gray.500">
-              {event.attendees.length} attending
-            </Text>
-          </HStack>
 
-          <Button colorScheme="brand" size="sm" w="100%">
-            Join Event
-          </Button>
-        </VStack>
-      </Box>
-    </MotionBox>
-  );
-};
-
-const Events = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
-
-  // Mock events data
-  const events = [
-    {
-      id: 1,
-      title: 'Singles Mixer Night',
-      date: 'Fri, Jan 12 • 8:00 PM',
-      location: 'The Rooftop Lounge, NYC',
-      description: 'Join us for a night of mingling, music, and making connections! Complimentary drinks and appetizers provided.',
-      image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7',
-      category: { name: 'Social', color: 'pink' },
-      attendees: [
-        { name: 'John Doe', image: 'https://bit.ly/dan-abramov' },
-        { name: 'Jane Smith', image: 'https://bit.ly/sage-adebayo' },
-        { name: 'Mike Johnson', image: 'https://bit.ly/kent-c-dodds' },
-        { name: 'Sarah Williams', image: 'https://bit.ly/ryan-florence' },
-      ],
-    },
-    {
-      id: 2,
-      title: 'Speed Dating @ Central Park',
-      date: 'Sat, Jan 13 • 3:00 PM',
-      location: 'Central Park, NYC',
-      description: 'Experience speed dating in the beautiful outdoors! Meet 10+ potential matches in a relaxed environment.',
-      image: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a',
-      category: { name: 'Dating', color: 'red' },
-      attendees: [
-        { name: 'Emily Brown', image: 'https://bit.ly/prosper-baba' },
-        { name: 'David Wilson', image: 'https://bit.ly/code-beast' },
-        { name: 'Lisa Anderson', image: 'https://bit.ly/sage-adebayo' },
-      ],
-    },
-    {
-      id: 3,
-      title: 'Cooking Class for Singles',
-      date: 'Sun, Jan 14 • 6:00 PM',
-      location: 'Culinary Institute, NYC',
-      description: 'Learn to cook delicious meals while meeting other food enthusiasts! All skill levels welcome.',
-      image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d',
-      category: { name: 'Workshop', color: 'green' },
-      attendees: [
-        { name: 'Tom Harris', image: 'https://bit.ly/dan-abramov' },
-        { name: 'Amy Lee', image: 'https://bit.ly/sage-adebayo' },
-        { name: 'Chris Martin', image: 'https://bit.ly/kent-c-dodds' },
-      ],
-    },
-    {
-      id: 4,
-      title: 'Singles Hiking Adventure',
-      date: 'Sat, Jan 20 • 9:00 AM',
-      location: 'Bear Mountain, NY',
-      description: 'Join fellow outdoor enthusiasts for a day of hiking, scenic views, and meaningful connections.',
-      image: 'https://images.unsplash.com/photo-1551632811-561732d1e306',
-      category: { name: 'Adventure', color: 'blue' },
-      attendees: [
-        { name: 'Rachel Green', image: 'https://bit.ly/prosper-baba' },
-        { name: 'Ross Geller', image: 'https://bit.ly/code-beast' },
-        { name: 'Monica Bing', image: 'https://bit.ly/sage-adebayo' },
-      ],
-    },
-  ];
-
-  return (
-    <Box minH="100vh" bg={bgColor} pt={20}>
-      <Container maxW="7xl">
-        <VStack spacing={8} align="stretch">
-          {/* Header */}
-          <Box>
-            <Heading size="2xl" mb={4}>
-              Events Near You
-            </Heading>
-            <Text fontSize="lg" color="gray.600">
-              Meet like-minded people at our curated events
-            </Text>
-          </Box>
-
-          {/* Search and Filter */}
-          <Flex gap={4} direction={{ base: 'column', md: 'row' }}>
-            <InputGroup maxW={{ base: 'full', md: '400px' }}>
-              <InputLeftElement pointerEvents="none">
-                <Icon as={FaSearch} color="gray.400" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search events..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                bg={useColorModeValue('white', 'gray.800')}
+            <HStack>
+              <IconButton
+                icon={<FaShare />}
+                variant="ghost"
+                colorScheme="brand"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/events/${event._id}`
+                  );
+                  toast({
+                    title: 'Link copied!',
+                    status: 'success',
+                    duration: 2000,
+                  });
+                }}
               />
-            </InputGroup>
-            <HStack spacing={2}>
-              <Button leftIcon={<FaFilter />} variant="outline">
-                Filter
-              </Button>
-              <Button leftIcon={<FaMapMarkerAlt />} variant="outline">
-                Location
+              <Button
+                colorScheme="brand"
+                isDisabled={
+                  event.isJoined ||
+                  event.participants.length >= event.maxParticipants
+                }
+                onClick={() => handleJoinEvent(event._id)}
+              >
+                {event.isJoined
+                  ? 'Joined'
+                  : event.participants.length >= event.maxParticipants
+                  ? 'Full'
+                  : 'Join'}
               </Button>
             </HStack>
           </Flex>
-
-          {/* Event Categories */}
-          <HStack spacing={4} overflowX="auto" py={4}>
-            {['All Events', 'Social', 'Dating', 'Workshop', 'Adventure'].map((category) => (
-              <Tag
-                key={category}
-                size="lg"
-                variant="subtle"
-                colorScheme={category === 'All Events' ? 'gray' : 'brand'}
-                borderRadius="full"
-                cursor="pointer"
-                _hover={{ bg: 'brand.50' }}
-              >
-                {category}
-              </Tag>
-            ))}
-          </HStack>
-
-          {/* Events Grid */}
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-            {events.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </SimpleGrid>
-
-          {/* Load More Button */}
-          <Button
-            size="lg"
-            variant="outline"
-            colorScheme="brand"
-            mx="auto"
-            mt={8}
-          >
-            Load More Events
-          </Button>
         </VStack>
-      </Container>
+      </Box>
     </Box>
   );
+
+  const CreateEventModal = () => (
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Create New Event</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <form onSubmit={handleCreateEvent}>
+            <VStack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>Event Title</FormLabel>
+                <Input
+                  value={newEvent.title}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, title: e.target.value })
+                  }
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Description</FormLabel>
+                <Textarea
+                  value={newEvent.description}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, description: e.target.value })
+                  }
+                />
+              </FormControl>
+
+              <HStack w="full">
+                <FormControl isRequired>
+                  <FormLabel>Date</FormLabel>
+                  <Input
+                    type="date"
+                    value={newEvent.date}
+                    onChange={(e) =>
+                      setNewEvent({ ...newEvent, date: e.target.value })
+                    }
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>Time</FormLabel>
+                  <Input
+                    type="time"
+                    value={newEvent.time}
+                    onChange={(e) =>
+                      setNewEvent({ ...newEvent, time: e.target.value })
+                    }
+                  />
+                </FormControl>
+              </HStack>
+
+              <FormControl isRequired>
+                <FormLabel>Location</FormLabel>
+                <Input
+                  value={newEvent.location}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, location: e.target.value })
+                  }
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Maximum Participants</FormLabel>
+                <Input
+                  type="number"
+                  value={newEvent.maxParticipants}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, maxParticipants: e.target.value })
+                  }
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Category</FormLabel>
+                <Select
+                  value={newEvent.category}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, category: e.target.value })
+                  }
+                >
+                  <option value="">Select category</option>
+                  <option value="Social">Social</option>
+                  <option value="Dating">Dating</option>
+                  <option value="Adventure">Adventure</option>
+                  <option value="Food & Drinks">Food & Drinks</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Arts & Culture">Arts & Culture</option>
+                </Select>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Event Image</FormLabel>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, image: e.target.files[0] })
+                  }
+                />
+              </FormControl>
+
+              <Button type="submit" colorScheme="brand" w="full">
+                Create Event
+              </Button>
+            </VStack>
+          </form>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+
+  return (
+    <Container maxW="container.xl" py={8}>
+      <Flex justify="space-between" align="center" mb={8}>
+        <Heading>Events</Heading>
+        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={onOpen}>
+          Create Event
+        </Button>
+      </Flex>
+
+      <Flex gap={4} mb={8} wrap="wrap">
+        <InputGroup maxW="md">
+          <InputLeftElement>
+            <FaSearch />
+          </InputLeftElement>
+          <Input
+            placeholder="Search events..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </InputGroup>
+
+        <Select
+          maxW="200px"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option value="upcoming">Upcoming</option>
+          <option value="past">Past</option>
+          <option value="joined">My Events</option>
+          <option value="hosting">Hosting</option>
+        </Select>
+      </Flex>
+
+      {loading ? (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Box key={i} borderWidth="1px" borderRadius="lg" overflow="hidden">
+              <Skeleton height="200px" />
+              <Box p={6}>
+                <SkeletonText mt="4" noOfLines={4} spacing="4" />
+              </Box>
+            </Box>
+          ))}
+        </SimpleGrid>
+      ) : filteredEvents.length === 0 ? (
+        <Box textAlign="center" py={10}>
+          <Heading size="md">No events found</Heading>
+          <Text mt={2}>Try adjusting your search or create a new event</Text>
+        </Box>
+      ) : (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+          {filteredEvents.map((event) => (
+            <EventCard key={event._id} event={event} />
+          ))}
+        </SimpleGrid>
+      )}
+
+      <CreateEventModal />
+    </Container>
+  );
 };
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
 
 export default Events;

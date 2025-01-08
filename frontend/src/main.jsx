@@ -8,15 +8,6 @@ import './styles/global.scss';
 
 const root = createRoot(document.getElementById('root'));
 
-<<<<<<< HEAD
-root.render(
-  <React.StrictMode>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <ChakraProvider theme={theme}>
-        <App />
-      </ChakraProvider>
-    </BrowserRouter>
-=======
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -47,12 +38,11 @@ class ErrorBoundary extends React.Component {
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter>
         <ChakraProvider theme={theme}>
           <App />
         </ChakraProvider>
       </BrowserRouter>
     </ErrorBoundary>
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
   </React.StrictMode>
 );

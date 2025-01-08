@@ -1,12 +1,5 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-<<<<<<< HEAD
-
-export default defineConfig({
-  plugins: [react()],
-  optimizeDeps: {
-    include: ['@chakra-ui/react'],
-=======
 import path from 'path';
 
 export default defineConfig({
@@ -24,6 +17,5 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:5000', 
     },
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
   },
 });

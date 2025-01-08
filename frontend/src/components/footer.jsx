@@ -1,18 +1,3 @@
-<<<<<<< HEAD
-import { Box, Text, Link, Center } from '@chakra-ui/react';
-
-const Footer = () => {
-  return (
-    <Box bg="gray.800" color="white" padding="16px" mt="auto">
-      <Center>
-        <Text fontSize="sm">
-          &copy; 2024 MyApp. All rights reserved. |{' '}
-          <Link href="/privacy-policy" color="teal.200">
-            Privacy Policy
-          </Link>
-        </Text>
-      </Center>
-=======
 import React from 'react';
 import {
   Box,
@@ -171,7 +156,6 @@ const Footer = () => {
           </Stack>
         </Flex>
       </Container>
->>>>>>> 52fd1f33b2d50562fd0f31ce54f8a2caa1c900e9
     </Box>
   );
 };
