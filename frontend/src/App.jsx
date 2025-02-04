@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChakraProvider, Box } from '@chakra-ui/react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Router } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Landing from './pages/Landing';
@@ -12,6 +12,7 @@ import Chat from './pages/Chat';
 import ModerationDashboard from './pages/ModerationDashboard';
 import { ChatProvider } from './context/ChatContext';
 import theme from './theme';
+import Discover from './pages/Discover';
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
               <Route path="/communities" element={<Communities />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/moderation" element={<ModerationDashboard />} />
+              <Route path="/discover" element={<Discover/>}/>
             </Routes>
           </Box>
           <Footer />
